@@ -12,14 +12,17 @@ dotenv.config();
 // Import routes
 const authRoutes = require('./src/routes/auth');
 const foodItemRoutes = require('./src/routes/foodItems');
-
+const cartRoutes = require('./src/routes/carts');
 // Initialize Express app
 const app = express();
 
 // Middleware
 app.use(express.json());
 // CORS stands for Cross-Origin Resource Sharing.
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3000', // Chỉ định origin cụ thể
+    credentials: true, // Cho phép gửi cookie/credentials
+}))
 
 // Helps analyze and read cookies from client requests.
 app.use(cookieParser());
@@ -28,6 +31,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/foodItems', foodItemRoutes);
+app.use('/api/carts', cartRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
