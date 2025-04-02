@@ -3,12 +3,15 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
+const multer = require('multer');
+const path = require('path');
 
 // Load environment variables
 dotenv.config();
 
 // Import routes
 const authRoutes = require('./src/routes/auth');
+const foodItemRoutes = require('./src/routes/foodItems');
 
 // Initialize Express app
 const app = express();
@@ -20,9 +23,11 @@ app.use(cors());
 
 // Helps analyze and read cookies from client requests.
 app.use(cookieParser());
-
+// upload static file
+app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/foodItems', foodItemRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
