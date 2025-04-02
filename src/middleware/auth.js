@@ -45,7 +45,7 @@ exports.authorize = (...roles) => {
     };
 };
 
-const authMiddleware = (req, res, next) => {
+exports.authMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
@@ -61,4 +61,4 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware;
+// module.exports = authMiddleware;

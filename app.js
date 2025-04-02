@@ -13,6 +13,7 @@ dotenv.config();
 const authRoutes = require('./src/routes/auth');
 const foodItemRoutes = require('./src/routes/foodItems');
 const cartRoutes = require('./src/routes/carts');
+const orderRoutes = require('./src/routes/orderRoutes');
 // Initialize Express app
 const app = express();
 
@@ -32,6 +33,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/foodItems', foodItemRoutes);
 app.use('/api/carts', cartRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
