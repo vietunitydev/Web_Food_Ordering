@@ -5,10 +5,10 @@ exports.createOrder = async (req, res) => {
     try {
         const userId = req.user.id; // Lấy userId từ token (được authMiddleware giải mã)
 
-        const { name, address, shippingFee, totalAmount, payment, paymentMethod, discount, items } = req.body;
+        const { name, address, email, phone, shippingFee, totalAmount, payment, paymentMethod, discount, items } = req.body;
 
         // Validate input
-        if (!name || !address || !shippingFee || !totalAmount || !payment || !paymentMethod || !items) {
+        if (!name || !address || !email || !phone || !shippingFee || !totalAmount || !payment || !paymentMethod || !items) {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
@@ -34,6 +34,8 @@ exports.createOrder = async (req, res) => {
             userId, // Sử dụng userId từ token
             name,
             address,
+            email,
+            phone,
             shippingFee,
             totalAmount: calculatedTotal, // Lưu tổng trước khi discount
             payment: finalPayment, // Số tiền thực tế sau discount
