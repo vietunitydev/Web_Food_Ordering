@@ -95,6 +95,40 @@ exports.logout = (req, res) => {
     res.status(200).json({ success: true, message: 'User logged out' });
 };
 
+exports.changePassword = async (req, res) => {
+    try {
+        // Check for validation errors
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ success: false, errors: errors.array() });
+        }
+
+        const { currentPassword, newPassword } = req.body;
+
+        // Get user with password
+        const user = await User.findById(req.user.id).select('+password');
+
+        // Check if current password matches
+        const isMatch = await user.matchPassword(currentPassword);
+        if (!isMatch) {
+            return res.status(401).json({ success: false, message: 'Current password is incorrect' });
+        }
+
+        // Set new password
+        user.password = newPassword;
+        await user.save();
+
+        // Return success message
+        res.status(200).json({
+            success: true,
+            message: 'Password updated successfully'
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
     // Create token
