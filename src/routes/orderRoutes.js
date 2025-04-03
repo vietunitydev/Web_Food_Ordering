@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createOrder, getOrderHistory } = require('../controllers/orderController');
-const {authMiddleware} = require("../middleware/auth");
+const {authMiddleware} = require("../middleware/authMiddleWare");
 
 // Tạo order (chỉ cho phép người dùng đã đăng nhập)
 router.post('/create', authMiddleware, createOrder);

@@ -10,9 +10,9 @@ const path = require('path');
 dotenv.config();
 
 // Import routes
-const authRoutes = require('./src/routes/auth');
+const authRoutes = require('./src/routes/authRoutes');
 const foodItemRoutes = require('./src/routes/foodItems');
-const cartRoutes = require('./src/routes/carts');
+const cartRoutes = require('./src/routes/cartsRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 // Initialize Express app

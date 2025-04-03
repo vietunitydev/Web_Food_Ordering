@@ -1,13 +1,13 @@
-// src/routes/carts.js
+// src/routes/cartsRoutes.js
 const express = require('express');
 const router = express.Router();
-const Carts = require('../models/Cart');
-const { protect } = require('../middleware/auth'); // Giả định có middleware xác thực
+const CartsRoutes = require('../models/Cart');
+const { protect } = require('../middleware/authMiddleWare'); // Giả định có middleware xác thực
 
 // Lấy giỏ hàng của user (Read)
 router.get('/my-cart', protect, async (req, res) => {
     try {
-        const cart = await Carts.findOne({ userId: req.user._id }).populate('list.foodItemId');
+        const cart = await CartsRoutes.findOne({ userId: req.user._id }).populate('list.foodItemId');
         if (!cart) {
             return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
         }
@@ -26,11 +26,11 @@ router.post('/add', protect, async (req, res) => {
     }
 
     try {
-        let cart = await Carts.findOne({ userId: req.user._id });
+        let cart = await CartsRoutes.findOne({ userId: req.user._id });
 
         if (!cart) {
             // Tạo giỏ hàng mới nếu chưa có
-            cart = new Carts({
+            cart = new CartsRoutes({
                 userId: req.user._id,
                 list: [{ foodItemId, quantity }],
             });
@@ -62,7 +62,7 @@ router.put('/update', protect, async (req, res) => {
     }
 
     try {
-        const cart = await Carts.findOne({ userId: req.user._id });
+        const cart = await CartsRoutes.findOne({ userId: req.user._id });
         if (!cart) {
             return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
         }
@@ -85,7 +85,7 @@ router.delete('/remove/:foodItemId', protect, async (req, res) => {
     const { foodItemId } = req.params;
 
     try {
-        const cart = await Carts.findOne({ userId: req.user._id });
+        const cart = await CartsRoutes.findOne({ userId: req.user._id });
         if (!cart) {
             return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
         }
@@ -101,7 +101,7 @@ router.delete('/remove/:foodItemId', protect, async (req, res) => {
 // Xóa toàn bộ giỏ hàng (Delete all)
 router.delete('/clear', protect, async (req, res) => {
     try {
-        const cart = await Carts.findOne({ userId: req.user._id });
+        const cart = await CartsRoutes.findOne({ userId: req.user._id });
         if (!cart) {
             return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
         }
