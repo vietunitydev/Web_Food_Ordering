@@ -3,7 +3,7 @@ const FoodItem = require('../models/FoodItem');
 
 exports.createOrder = async (req, res) => {
     try {
-        const userId = req.user.id; // Lấy userId từ token (được authMiddleware giải mã)
+        const userId = req.user.id;
 
         const { name, address, email, phone, shippingFee, totalAmount, payment, paymentMethod, discount, items } = req.body;
 
@@ -12,7 +12,6 @@ exports.createOrder = async (req, res) => {
             return res.status(400).json({ message: 'Missing required fields' });
         }
 
-        // Tính toán lại totalAmount để đảm bảo đúng (tùy chọn)
         let calculatedTotal = shippingFee;
         for (const item of items) {
             const foodItem = await FoodItem.findById(item.foodItemId);
@@ -22,7 +21,6 @@ exports.createOrder = async (req, res) => {
             calculatedTotal += foodItem.price * item.quantity;
         }
 
-        // Áp dụng discount (nếu có)
         const finalPayment = calculatedTotal - discount;
 
         if (finalPayment < 0) {
@@ -37,8 +35,8 @@ exports.createOrder = async (req, res) => {
             email,
             phone,
             shippingFee,
-            totalAmount: calculatedTotal, // Lưu tổng trước khi discount
-            payment: finalPayment, // Số tiền thực tế sau discount
+            totalAmount: calculatedTotal,
+            payment: finalPayment,
             paymentMethod,
             discount,
             items
@@ -62,7 +60,7 @@ exports.getOrderHistory = async (req, res) => {
 
         const orders = await Order.find({ userId })
             .populate('items.foodItemId') // Populate để lấy thông tin chi tiết của food items
-            .sort({ createdAt: -1 }); // Sắp xếp theo thời gian giảm dần (mới nhất lên đầu)
+            .sort({ createdAt: -1 });
 
         res.status(200).json({
             message: 'Order history retrieved successfully',
