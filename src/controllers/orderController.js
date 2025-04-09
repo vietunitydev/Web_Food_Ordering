@@ -71,3 +71,21 @@ exports.getOrderHistory = async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+exports.getAllOrder = async (req, res) => {
+    try {
+        const userId = req.user.id; // Lấy userId từ token
+
+        const orders = await Order.find()
+            .populate('items.foodItemId') // Populate để lấy thông tin chi tiết của food items
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            message: 'Order history retrieved successfully',
+            orders
+        });
+    } catch (error) {
+        console.error('Error getting order history:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

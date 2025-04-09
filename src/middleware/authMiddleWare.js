@@ -61,4 +61,25 @@ exports.authMiddleware = (req, res, next) => {
     }
 };
 
+exports.adminMiddleware = async (req, res, next) => {
+    if (!req.user) {
+        return res.status(401).json({ success: false, message: 'Not authenticated' });
+    }
+
+    try {
+        const user = await User.findById(req.user.id || req.user._id).select('role');
+
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Access denied. Admin role required.'
+            });
+        }
+
+        next();
+    } catch (err) {
+        return res.status(500).json({ success: false, message: 'Server error while checking admin role' });
+    }
+};
+
 // module.exports = authMiddleware;
