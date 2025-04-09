@@ -1,5 +1,13 @@
 const express = require('express');
-const { register, login, getMe, logout, changePassword} = require('../controllers/authController');
+const {
+    register,
+    login,
+    getMe,
+    logout,
+    changePassword,
+    forgotPassword,
+    resetPassword
+} = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleWare');
 const { check } = require('express-validator');
 
@@ -42,6 +50,24 @@ router.put(
         check('newPassword', 'Please enter a new password with 6 or more characters').isLength({ min: 6 })
     ],
     changePassword
+);
+
+// Forgot password
+router.post(
+    '/forgot-password',
+    [
+        check('email', 'Please include a valid email').isEmail()
+    ],
+    forgotPassword
+);
+
+// Reset password
+router.put(
+    '/reset-password/:resettoken',
+    [
+        check('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
+    ],
+    resetPassword
 );
 
 module.exports = router;
