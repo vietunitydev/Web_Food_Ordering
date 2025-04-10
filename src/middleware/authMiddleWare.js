@@ -90,10 +90,10 @@ exports.userMiddleware = async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id || req.user._id).select('role');
 
-        if (!user || user.role !== 'admin') {
+        if (!user || user.role !== 'user') {
             return res.status(403).json({
                 success: false,
-                message: 'Access denied. Admin role required.'
+                message: 'Access denied.'
             });
         }
 
