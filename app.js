@@ -11,7 +11,7 @@ dotenv.config();
 
 // Import routes
 const authRoutes = require('./src/routes/authRoutes');
-const foodItemRoutes = require('./src/routes/foodItems');
+const foodItemRoutes = require('./src/routes/foodItemsRoutes');
 const cartRoutes = require('./src/routes/cartsRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const userRoutes = require('./src/routes/userRoutes');

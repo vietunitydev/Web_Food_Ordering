@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { createOrder, getOrderHistory, getAllOrder} = require('../controllers/orderController');
-const {authMiddleware, adminMiddleware} = require("../middleware/authMiddleWare");
+const { createOrder, getOrderHistory, updateOrderStatus, getAllOrders, updateOrder } = require('../controllers/orderController');
+const { authMiddleware, userMiddleware, adminMiddleware } = require('../middleware/authMiddleWare');
 
-// Tạo order (chỉ cho phép người dùng đã đăng nhập)
-router.post('/create', authMiddleware, createOrder);
+// User routes
+router.post('/create', authMiddleware, userMiddleware, createOrder);
+router.get('/history', authMiddleware, userMiddleware, getOrderHistory);
 
-// Lấy lịch sử order (chỉ cho phép người dùng đã đăng nhập)
-router.get('/history', authMiddleware, getOrderHistory);
-
-// Lấy lịch sử order (chỉ cho phép người dùng đã đăng nhập và là admin)
-router.get('/all', authMiddleware, adminMiddleware, getAllOrder);
+// Admin routes
+router.get('/all', authMiddleware, adminMiddleware, getAllOrders);
+router.put('/:id/status', authMiddleware, adminMiddleware, updateOrderStatus);
+router.put('/:id', authMiddleware, adminMiddleware, updateOrder);
 
 module.exports = router;

@@ -42,6 +42,28 @@ exports.deleteUser = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+exports.deleteUserById = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        if (userId === req.user.id) {
+            return res.status(403).json({ success: false, message: 'Admin cannot delete their own account' });
+        }
+
+        const deletedUser = await User.findByIdAndDelete(userId);
+        if (!deletedUser) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        res.status(200).json({ success: true, message: 'Account deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+
 exports.getAllUsers = async (req, res) => {
     try {
         const users = await User.find()

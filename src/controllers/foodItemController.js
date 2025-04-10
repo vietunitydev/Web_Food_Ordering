@@ -1,23 +1,6 @@
-// src/routes/foodItems.js
-const express = require('express');
-const router = express.Router();
 const FoodItem = require('../models/FoodItem');
-const multer = require('multer');
-const path = require('path');
 
-// Cấu hình multer để lưu ảnh vào thư mục uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'src/uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Đặt tên file với timestamp
-    },
-});
-
-const upload = multer({ storage });
-
-router.post('/', upload.single('image'), async (req, res) => {
+exports.createFoodItem = async (req, res) => {
     console.log('Request received');
     console.log('Request body:', req.body);
     console.log('File:', req.file);
@@ -44,20 +27,18 @@ router.post('/', upload.single('image'), async (req, res) => {
         console.error('Lỗi MongoDB:', error);
         res.status(500).json({ message: 'Lỗi khi thêm sản phẩm', error });
     }
-});
+};
 
-// Lấy danh sách sản phẩm (Read)
-router.get('/', async (req, res) => {
+exports.getFoodItems = async (req, res) => {
     try {
         const foodItems = await FoodItem.find();
         res.status(200).json(foodItems);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error });
     }
-});
+};
 
-// Sửa sản phẩm (Update)
-router.put('/:id', upload.single('image'), async (req, res) => {
+exports.updateFoodItem = async (req, res) => {
     try {
         const { title, description, price, type } = req.body;
         const updateData = { title, description, price: parseFloat(price), type };
@@ -74,10 +55,9 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi sửa sản phẩm', error });
     }
-});
+};
 
-// Xóa sản phẩm (Delete)
-router.delete('/:id', async (req, res) => {
+exports.deleteFoodItem = async (req, res) => {
     try {
         const deletedItem = await FoodItem.findByIdAndDelete(req.params.id);
         if (!deletedItem) {
@@ -87,6 +67,4 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi xóa sản phẩm', error });
     }
-});
-
-module.exports = router;
+};

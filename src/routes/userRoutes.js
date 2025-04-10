@@ -1,13 +1,14 @@
-// src/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { updateUser, deleteUser, getAllUsers } = require('../controllers/userController');
-const { authMiddleware, adminMiddleware } = require("../middleware/authMiddleWare");
+const { getAllUsers, deleteUser, updateUser, deleteUserById} = require('../controllers/userController');
+const { authMiddleware, adminMiddleware, userMiddleware } = require('../middleware/authMiddleWare');
 
-router.put('/update', authMiddleware, updateUser);
-router.delete('/delete', authMiddleware, deleteUser);
-
-// Lấy tất cả người dùng (chỉ cho admin)
+// Admin routes
 router.get('/all', authMiddleware, adminMiddleware, getAllUsers);
+router.delete('/:id', authMiddleware, adminMiddleware, deleteUserById);
+
+// User routes
+router.put('/update', authMiddleware, userMiddleware, updateUser);
+router.delete('/delete', authMiddleware, userMiddleware, deleteUser);
 
 module.exports = router;
