@@ -15,6 +15,8 @@ const foodItemRoutes = require('./src/routes/foodItemsRoutes');
 const cartRoutes = require('./src/routes/cartsRoutes');
 const orderRoutes = require('./src/routes/orderRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const couponRoutes = require('./src/routes/couponRoutes');
+
 // Initialize Express app
 const app = express();
 
@@ -36,6 +38,7 @@ app.use('/api/foodItems', foodItemRoutes);
 app.use('/api/carts', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
