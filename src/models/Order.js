@@ -62,8 +62,13 @@ const orderSchema = new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ['cash', 'credit_card', 'bank_transfer', 'paypal'],
+        enum: ['cash', 'credit_card', 'bank_transfer', 'paypal', 'stripe'],
         required: true
+    },
+    promoCode: {
+        type: String,
+        required: false,
+        trim: true
     },
     discount: {
         type: Number,
