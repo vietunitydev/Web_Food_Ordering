@@ -163,6 +163,12 @@ exports.createCheckoutSession = async (req, res) => {
             quantity: 1,
         });
 
+        // Rút gọn items cho metadata
+        const metadataItems = items.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+        }));
+
         const session = await stripe.checkout.sessions.create({
             payment_method_types: ['card'],
             line_items: lineItems,
@@ -179,7 +185,7 @@ exports.createCheckoutSession = async (req, res) => {
                 customerPhone: customerDetails.phone,
                 customerAddress: customerDetails.address,
                 promoCode: promoCode || '',
-                items: JSON.stringify(items),
+                items: JSON.stringify(metadataItems),
                 shippingFee: shippingFee.toString(),
                 discount: discount.toString(),
             },

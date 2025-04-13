@@ -22,6 +22,14 @@ const foodItemSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    rating: {
+        type: String,
+        default: '0',
+    },
+    isFeature: {
+        type: Boolean,
+        default: false,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('FoodItem', foodItemSchema);

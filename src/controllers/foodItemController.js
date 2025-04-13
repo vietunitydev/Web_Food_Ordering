@@ -31,12 +31,39 @@ exports.createFoodItem = async (req, res) => {
 
 exports.getFoodItems = async (req, res) => {
     try {
+        const { featured, sort, order, limit } = req.query;
+        let query = {};
+        let options = {};
+
+        if (featured === 'true') {
+            query.isFeatured = true;
+        }
+
+        if (sort) {
+            options.sort = { [sort]: order === 'desc' ? -1 : 1 };
+        }
+
+        if (limit) {
+            options.limit = parseInt(limit);
+        }
+
+        const foodItems = await FoodItem.find(query, null, options);
+        res.status(200).json(foodItems);
+    } catch (error) {
+        console.error('Error fetching food items:', error);
+        res.status(500).json({ message: 'Lỗi khi lấy danh sách món ăn.' });
+    }
+};
+
+exports.getAllFoodItems = async (req, res) => {
+    try {
         const foodItems = await FoodItem.find();
         res.status(200).json(foodItems);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error });
     }
 };
+
 
 exports.updateFoodItem = async (req, res) => {
     try {
