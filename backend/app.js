@@ -24,8 +24,8 @@ const app = express();
 app.use(express.json());
 // CORS stands for Cross-Origin Resource Sharing.
 app.use(cors({
-    origin: 'http://localhost:3000', // Chỉ định origin cụ thể
-    credentials: true, // Cho phép gửi cookie/credentials
+    origin: 'http://localhost:3000',
+    credentials: true,
 }))
 
 // Helps analyze and read cookies from client requests.

@@ -30,14 +30,26 @@ const FoodPage: React.FC = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await axios.get('http://localhost:4999/api/foodItems/all');
+                const params = new URLSearchParams();
+
+                if (category) {
+                    params.append('category', category);
+                }
+
+                if (searchTerm) {
+                    params.append('search', searchTerm);
+                }
+
+                const url = `http://localhost:4999/api/foodItems?${params.toString()}`;
+                const response = await axios.get(url);
+
                 setItems(response.data);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách sản phẩm:', error);
             }
         };
         fetchItems();
-    }, []);
+    }, [category, searchTerm]);
 
     const addToCart = async (item: FoodItem) => {
         if (!state.token) {
@@ -67,23 +79,9 @@ const FoodPage: React.FC = () => {
         }
     };
 
-    // Lọc món ăn dựa trên category hoặc search
-    const filteredItems = items.filter((item) => {
-        if (searchTerm) {
-            // Nếu có searchTerm, lọc theo title chứa chuỗi tìm kiếm
-            return item.title.toLowerCase().includes(searchTerm.toLowerCase());
-        } else if (category) {
-            // Nếu có category mà không có searchTerm, lọc theo category
-            return item.type === category;
-        } else {
-            // Nếu không có cả hai, hiển thị tất cả
-            return true;
-        }
-    });
-
-    const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentItems = filteredItems.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const currentItems = items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handlePageChange = (page: number) => {
         if (page >= 1 && page <= totalPages) {
@@ -99,7 +97,7 @@ const FoodPage: React.FC = () => {
         <div className="food-page">
             <div className="food-header">
                 <h2 className="food-title">{title}</h2>
-                <p className="result-count">{filteredItems.length} kết quả</p>
+                <p className="result-count">{items.length} kết quả</p>
             </div>
 
             {currentItems.length === 0 ? (<div className="empty-item"><p>Không tìm thấy món ăn nào.</p></div>) : (<p></p>)}

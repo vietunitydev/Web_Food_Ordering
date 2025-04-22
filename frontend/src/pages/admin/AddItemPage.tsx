@@ -50,6 +50,8 @@ const AddItemPage: React.FC = () => {
         data.append('price', formData.price);
         data.append('image', formData.image);
 
+        console.log(formData);
+
         try {
             await axios.post('http://localhost:4999/api/foodItems', data, {
                 headers: { Authorization: `Bearer ${state.token}` }

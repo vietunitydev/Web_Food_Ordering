@@ -31,12 +31,20 @@ exports.createFoodItem = async (req, res) => {
 
 exports.getFoodItems = async (req, res) => {
     try {
-        const { featured, sort, order, limit } = req.query;
+        const { featured, sort, order, limit, category, search } = req.query;
         let query = {};
         let options = {};
 
         if (featured === 'true') {
             query.isFeatured = true;
+        }
+
+        if (req.query.category) {
+            query.type = req.query.category;
+        }
+
+        if (req.query.search) {
+            query.title = { $regex: req.query.search, $options: 'i' };
         }
 
         if (sort) {
@@ -57,7 +65,15 @@ exports.getFoodItems = async (req, res) => {
 
 exports.getAllFoodItems = async (req, res) => {
     try {
-        const foodItems = await FoodItem.find();
+        const { limit } = req.query;
+
+        let options = {};
+
+        if (limit) {
+            options.limit = parseInt(limit);
+        }
+
+        const foodItems = await FoodItem.find(options);
         res.status(200).json(foodItems);
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error });
