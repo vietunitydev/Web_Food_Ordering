@@ -3,19 +3,24 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useAppContext, actions } from '../../components/AppContext/AppContext.tsx';
 import axios from 'axios';
 import './FoodPage.css';
-import { FoodItem } from "../../shared/types.ts";
-
-const ITEMS_PER_PAGE = 20;
+import { FoodItem } from '../../shared/types.ts';
 
 const FoodPage: React.FC = () => {
-    const [currentPage, setCurrentPage] = useState(1);
     const [items, setItems] = useState<FoodItem[]>([]);
-    const [searchParams] = useSearchParams();
+    const [pagination, setPagination] = useState({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 20,
+    });
+    const [searchParams, setSearchParams] = useSearchParams();
     const { state, dispatch } = useAppContext();
     const navigate = useNavigate();
 
     const category = searchParams.get('category') || '';
     const searchTerm = searchParams.get('search') || '';
+    const page = searchParams.get('page') || '1';
+    const limit = searchParams.get('limit') || '20';
 
     const categoryTitleMap: { [key: string]: string } = {
         main: 'Món chính',
@@ -25,31 +30,31 @@ const FoodPage: React.FC = () => {
         other: 'Khác',
     };
 
-    const title = searchTerm ? `Kết quả tìm kiếm cho "${searchTerm}"` : (categoryTitleMap[category] || 'Tất cả món ăn');
+    const title = searchTerm
+        ? `Kết quả tìm kiếm cho "${searchTerm}"`
+        : categoryTitleMap[category] || 'Tất cả món ăn';
 
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const params = new URLSearchParams();
-
-                if (category) {
-                    params.append('category', category);
-                }
-
-                if (searchTerm) {
-                    params.append('search', searchTerm);
-                }
+                const params = new URLSearchParams({
+                    page,
+                    limit,
+                    ...(category && { category }),
+                    ...(searchTerm && { search: searchTerm }),
+                });
 
                 const url = `http://localhost:4999/api/foodItems?${params.toString()}`;
                 const response = await axios.get(url);
 
-                setItems(response.data);
+                setItems(response.data.items);
+                setPagination(response.data.pagination);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách sản phẩm:', error);
             }
         };
         fetchItems();
-    }, [category, searchTerm]);
+    }, [page, limit, category, searchTerm]);
 
     const addToCart = async (item: FoodItem) => {
         if (!state.token) {
@@ -70,7 +75,7 @@ const FoodPage: React.FC = () => {
             );
             dispatch({
                 type: actions.ADD_TO_CART,
-                payload: { id: item._id, name: item.title, price: item.price }
+                payload: { id: item._id, name: item.title, price: item.price },
             });
             console.log('Thêm vào giỏ hàng thành công:', response.data);
         } catch (error) {
@@ -79,60 +84,71 @@ const FoodPage: React.FC = () => {
         }
     };
 
-    const totalPages = Math.ceil(items.length / ITEMS_PER_PAGE);
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const currentItems = items.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-    const handlePageChange = (page: number) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            setSearchParams({
+                ...Object.fromEntries(searchParams),
+                page: newPage.toString(),
+            });
         }
     };
-
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [category, searchTerm]);
 
     return (
         <div className="food-page">
             <div className="food-header">
                 <h2 className="food-title">{title}</h2>
-                <p className="result-count">{items.length} kết quả</p>
+                <p className="result-count">{pagination.totalItems} kết quả</p>
             </div>
 
-            {currentItems.length === 0 ? (<div className="empty-item"><p>Không tìm thấy món ăn nào.</p></div>) : (<p></p>)}
-
-
-            <div className="pizza-grid">
-                {currentItems.length === 0 ? (
-                    <p></p>
-                ) : (
-                    currentItems.map((item) => (
+            {items.length === 0 ? (
+                <div className="empty-item">
+                    <p>Không tìm thấy món ăn nào.</p>
+                </div>
+            ) : (
+                <div className="pizza-grid">
+                    {items.map((item) => (
                         <div key={item._id} className="pizza-card">
-                            <img src={`http://localhost:4999${item.imageURL}`} alt={item.title} className="pizza-image" />
+                            <img
+                                src={`http://localhost:4999${item.imageURL}`}
+                                alt={item.title}
+                                className="pizza-image"
+                            />
                             <h3 className="pizza-name">{item.title}</h3>
                             <p className="pizza-price">${item.price.toFixed(2)}</p>
-                            <button onClick={() => addToCart(item)} className="add-to-cart-button">
+                            <button
+                                onClick={() => addToCart(item)}
+                                className="add-to-cart-button"
+                            >
                                 Thêm vào giỏ hàng
                             </button>
                         </div>
-                    ))
-                )}
-            </div>
+                    ))}
+                </div>
+            )}
 
-            {totalPages > 1 && (
+            {pagination.totalPages > 1 && (
                 <div className="pagination">
-                    <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>{'<'}</button>
-                    {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage - 1)}
+                        disabled={pagination.currentPage === 1}
+                    >
+                        {'<'}
+                    </button>
+                    {Array.from({ length: pagination.totalPages }, (_, index) => (
                         <button
                             key={index + 1}
                             onClick={() => handlePageChange(index + 1)}
-                            className={currentPage === index + 1 ? 'active' : ''}
+                            className={pagination.currentPage === index + 1 ? 'active' : ''}
                         >
                             {index + 1}
                         </button>
                     ))}
-                    <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>{'>'}</button>
+                    <button
+                        onClick={() => handlePageChange(pagination.currentPage + 1)}
+                        disabled={pagination.currentPage === pagination.totalPages}
+                    >
+                        {'>'}
+                    </button>
                 </div>
             )}
         </div>

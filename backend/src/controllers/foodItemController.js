@@ -31,7 +31,7 @@ exports.createFoodItem = async (req, res) => {
 
 exports.getFoodItems = async (req, res) => {
     try {
-        const { featured, sort, order, limit, category, search } = req.query;
+        const { page = 1, limit = 20, category, search, featured, sort, order } = req.query;
         let query = {};
         let options = {};
 
@@ -39,24 +39,36 @@ exports.getFoodItems = async (req, res) => {
             query.isFeatured = true;
         }
 
-        if (req.query.category) {
-            query.type = req.query.category;
+        if (category) {
+            query.type = category;
         }
 
-        if (req.query.search) {
-            query.title = { $regex: req.query.search, $options: 'i' };
+        if (search) {
+            query.title = { $regex: search, $options: 'i' };
         }
+
+        options = {
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            limit: parseInt(limit),
+        };
 
         if (sort) {
             options.sort = { [sort]: order === 'desc' ? -1 : 1 };
         }
 
-        if (limit) {
-            options.limit = parseInt(limit);
-        }
+        const totalItems = await FoodItem.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / parseInt(limit));
 
         const foodItems = await FoodItem.find(query, null, options);
-        res.status(200).json(foodItems);
+        res.status(200).json({
+            items: foodItems,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems,
+                itemsPerPage: parseInt(limit),
+            },
+        });
     } catch (error) {
         console.error('Error fetching food items:', error);
         res.status(500).json({ message: 'Lỗi khi lấy danh sách món ăn.' });
