@@ -65,11 +65,70 @@ exports.getOrderHistory = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
     try {
-        const orders = await Order.find()
-            .populate('items.foodItemId')
-            .sort({ createdAt: -1 });
+        const {
+            page = 1,
+            limit = 10,
+            id,
+            name,
+            payment,
+            status,
+            paymentMethod,
+            createdAtFrom,
+            createdAtTo,
+        } = req.query;
 
-        res.status(200).json({ orders });
+        let query = {};
+
+        if (id) {
+            query._id = id;
+        }
+
+        if (name) {
+            query.name = { $regex: name, $options: 'i' };
+        }
+
+        if (payment) {
+            query.payment = { $gte: parseFloat(payment) };
+        }
+
+        if (status) {
+            query.status = { $regex: status, $options: 'i' };
+        }
+
+        if (paymentMethod) {
+            query.paymentMethod = { $regex: paymentMethod, $options: 'i' };
+        }
+
+        if (createdAtFrom || createdAtTo) {
+            query.createdAt = {};
+            if (createdAtFrom) query.createdAt.$gte = new Date(createdAtFrom);
+            if (createdAtTo) query.createdAt.$lte = new Date(createdAtTo);
+        }
+
+        // Pagination options
+        const options = {
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            limit: parseInt(limit),
+            sort: { createdAt: -1 }, // Sort by createdAt descending
+        };
+
+        // Fetch total items for pagination
+        const totalItems = await Order.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / parseInt(limit));
+
+        // Fetch orders with population
+        const orders = await Order.find(query, null, options).populate('items.foodItemId');
+
+        res.status(200).json({
+            orders,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems,
+                itemsPerPage: parseInt(limit),
+                hasMore: parseInt(page) < totalPages,
+            },
+        });
     } catch (error) {
         console.error('Error getting all orders:', error);
         res.status(500).json({ message: 'Server error' });
@@ -122,7 +181,6 @@ exports.updateOrder = async (req, res) => {
     }
 };
 
-// Tạo Stripe Checkout Session
 exports.createCheckoutSession = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -163,7 +221,6 @@ exports.createCheckoutSession = async (req, res) => {
             quantity: 1,
         });
 
-        // Rút gọn items cho metadata
         const metadataItems = items.map((item) => ({
             id: item.id,
             quantity: item.quantity,
@@ -198,15 +255,10 @@ exports.createCheckoutSession = async (req, res) => {
     }
 };
 
-// Xác minh Stripe Session và lưu đơn hàng
 exports.verifySession = async (req, res) => {
     try {
         const session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
-        console.log("session", session);
         if (session.payment_status === 'paid') {
-            console.log("paid");
-
-            // Lưu đơn hàng vào database
             const orderData = {
                 userId: session.metadata.userId,
                 name: session.metadata.customerName,
@@ -226,24 +278,13 @@ exports.verifySession = async (req, res) => {
                 status: 'pending',
             };
 
-            console.log("prepare oder");
-
-
             const order = new Order(orderData);
             await order.save();
 
-            console.log("save oder");
-
-
-            // Xóa giỏ hàng
             await Cart.updateOne(
                 { userId: session.metadata.userId },
                 { $set: { list: [] } }
             );
-
-
-            console.log("delete oder");
-
 
             res.json({ success: true, order });
         } else {
@@ -257,7 +298,7 @@ exports.verifySession = async (req, res) => {
 
 async function createStripeCoupon(discountAmount) {
     const coupon = await stripe.coupons.create({
-        amount_off: Math.round(discountAmount * 100), // Chuyển sang cent
+        amount_off: Math.round(discountAmount * 100),
         currency: 'usd',
         duration: 'once',
     });

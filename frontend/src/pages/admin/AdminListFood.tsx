@@ -143,13 +143,6 @@ const ListItemsPage: React.FC = () => {
                 <div className="search-form">
                     <input
                         type="text"
-                        placeholder="Tìm ID"
-                        value={searchTerms.id}
-                        onChange={(e) => handleSearchChange('id', e.target.value)}
-                        className="search-input"
-                    />
-                    <input
-                        type="text"
                         placeholder="Tìm tên"
                         value={searchTerms.title}
                         onChange={(e) => handleSearchChange('title', e.target.value)}
