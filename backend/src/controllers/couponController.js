@@ -90,7 +90,6 @@ exports.deleteCoupon = async (req, res) => {
     }
 };
 
-// Áp dụng mã giảm giá (user only)
 exports.applyCoupon = async (req, res) => {
     try {
         const { code, orderTotal } = req.body;
@@ -104,17 +103,14 @@ exports.applyCoupon = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Coupon not found or inactive' });
         }
 
-        // Kiểm tra ngày hết hạn
         if (coupon.expiresAt && new Date() > coupon.expiresAt) {
             return res.status(400).json({ success: false, message: 'Coupon has expired' });
         }
 
-        // Kiểm tra số lần sử dụng
         if (coupon.maxUses && coupon.usedCount >= coupon.maxUses) {
             return res.status(400).json({ success: false, message: 'Coupon has reached maximum uses' });
         }
 
-        // Tính toán giảm giá
         let discountAmount = 0;
         if (coupon.discountType === 'fixed') {
             discountAmount = coupon.discount;
@@ -122,9 +118,8 @@ exports.applyCoupon = async (req, res) => {
             discountAmount = (coupon.discount / 100) * orderTotal;
         }
 
-        // Cập nhật số lần sử dụng
-        coupon.usedCount += 1;
-        await coupon.save();
+        // coupon.usedCount += 1;
+        // await coupon.save();
 
         res.status(200).json({
             success: true,

@@ -64,7 +64,7 @@ const Home = () => {
             setIsLoading(true);
             try {
                 // Lấy 4 món nổi bật cho hero section
-                const menuResponse = await axios.get('http://localhost:4999/api/foodItems?featured=true&limit=4');
+                const menuResponse = await axios.get('http://localhost:4999/api/foodItems/get_home_product?featured=true&limit=4');
                 const menuData = menuResponse.data.map((item: any) => ({
                     id: item._id,
                     name: item.title,
@@ -75,7 +75,7 @@ const Home = () => {
                 setMenuItems(menuData);
 
                 // Lấy top 6 món theo rating cho product grid
-                const productResponse = await axios.get('http://localhost:4999/api/foodItems?sort=rating&order=desc&limit=6');
+                const productResponse = await axios.get('http://localhost:4999/api/foodItems/get_home_product?sort=rating&order=desc&limit=6');
                 const productData = productResponse.data.map((item: any) => ({
                     id: item._id,
                     name: item.title,

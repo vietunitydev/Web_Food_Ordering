@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 exports.updateUser = async (req, res) => {
     try {
-        const userId = req.user.id; // Lấy từ authMiddleware
+        const userId = req.user.id;
         const { name, email, phone, address } = req.body;
 
         if (!name || !email || !phone || !address) {

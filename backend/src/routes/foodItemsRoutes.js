@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createFoodItem, getFoodItems, updateFoodItem, deleteFoodItem, getAllFoodItems} = require('../controllers/foodItemController');
+const { createFoodItem, getFoodItems, updateFoodItem, deleteFoodItem, getAllFoodItems, getFoodItemsHome} = require('../controllers/foodItemController');
 const multer = require('multer');
 const path = require('path');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleWare');
@@ -18,6 +18,7 @@ const upload = multer({ storage });
 
 router.post('/', authMiddleware, adminMiddleware, upload.single('image'), createFoodItem);
 router.get('/', getFoodItems);
+router.get('/get_home_product', getFoodItemsHome);
 router.get('/all', getAllFoodItems);
 router.put('/:id', authMiddleware, adminMiddleware, upload.single('image'), updateFoodItem);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteFoodItem);
