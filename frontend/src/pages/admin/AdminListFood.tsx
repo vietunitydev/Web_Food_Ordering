@@ -13,9 +13,24 @@ interface Item {
     type: string;
 }
 
+interface Pagination {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasMore: boolean;
+}
+
 const ListItemsPage: React.FC = () => {
     const { state } = useAppContext();
     const [items, setItems] = useState<Item[]>([]);
+    const [pagination, setPagination] = useState<Pagination>({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 10,
+        hasMore: false,
+    });
     const [searchTerms, setSearchTerms] = useState({
         id: '',
         title: '',
@@ -31,22 +46,33 @@ const ListItemsPage: React.FC = () => {
         const fetchItems = async () => {
             if (state.role !== 'admin') return;
             try {
-                const response = await axios.get('http://localhost:4999/api/foodItems/all', {
-                    headers: { Authorization: `Bearer ${state.token}` }
+                const response = await axios.get('http://localhost:4999/api/foodItems/get_food_admin', {
+                    headers: { Authorization: `Bearer ${state.token}` },
+                    params: {
+                        page: pagination.currentPage,
+                        limit: pagination.itemsPerPage,
+                        id: searchTerms.id,
+                        title: searchTerms.title,
+                        description: searchTerms.description,
+                        type: searchTerms.type,
+                        priceFrom: searchTerms.priceFrom,
+                        priceTo: searchTerms.priceTo,
+                    },
                 });
-                setItems(response.data);
+                setItems(response.data.items);
+                setPagination(response.data.pagination);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách sản phẩm:', error);
             }
         };
         if (state.token && state.role === 'admin') fetchItems();
-    }, [state.token, state.role]);
+    }, [state.token, state.role, pagination.currentPage, searchTerms]);
 
     const handleDelete = async (id: string) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             try {
                 await axios.delete(`http://localhost:4999/api/foodItems/${id}`, {
-                    headers: { Authorization: `Bearer ${state.token}` }
+                    headers: { Authorization: `Bearer ${state.token}` },
                 });
                 setItems((prevItems) => prevItems.filter((item) => item._id !== id));
                 alert('Sản phẩm đã được xóa!');
@@ -63,9 +89,9 @@ const ListItemsPage: React.FC = () => {
     };
 
     const handleEditChange = (field: string, value: string | number) => {
-        if (field === 'price' || field === 'priceFrom' || field === 'priceTo') {
+        if (field === 'price') {
             const numericValue = parseFloat(value as string);
-            if (numericValue < 0) return; // Prevent negative numbers
+            if (numericValue < 0) return;
             setEditData((prev) => ({ ...prev, [field]: numericValue }));
         } else {
             setEditData((prev) => ({ ...prev, [field]: value }));
@@ -79,12 +105,11 @@ const ListItemsPage: React.FC = () => {
                 editData,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
-            const updatedItems = items.map((item) =>
-                item._id === id ? response.data : item
+            setItems((prevItems) =>
+                prevItems.map((item) => (item._id === id ? response.data : item))
             );
-            setItems(updatedItems);
             setEditItemId(null);
-            // alert('Sản phẩm đã được cập nhật!');
+            alert('Sản phẩm đã được cập nhật!');
         } catch (error) {
             console.error('Error updating food item:', error);
             alert('Lỗi khi cập nhật sản phẩm!');
@@ -94,36 +119,35 @@ const ListItemsPage: React.FC = () => {
     const handleSearchChange = (field: string, value: string) => {
         if (field === 'priceFrom' || field === 'priceTo') {
             const numericValue = parseFloat(value);
-            if (numericValue < 0) return; // Prevent negative numbers in search
+            if (numericValue < 0) return;
             setSearchTerms((prev) => ({ ...prev, [field]: isNaN(numericValue) ? '' : value }));
         } else {
             setSearchTerms((prev) => ({ ...prev, [field]: value }));
         }
+        // Reset to page 1 when search terms change
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
     };
 
-    const filteredItems = items.filter((item) =>
-        item._id.toLowerCase().includes(searchTerms.id.toLowerCase()) &&
-        item.title.toLowerCase().includes(searchTerms.title.toLowerCase()) &&
-        item.description.toLowerCase().includes(searchTerms.description.toLowerCase()) &&
-        item.type.toLowerCase().includes(searchTerms.type.toLowerCase()) &&
-        (!searchTerms.priceFrom || item.price >= parseFloat(searchTerms.priceFrom)) &&
-        (!searchTerms.priceTo || item.price <= parseFloat(searchTerms.priceTo))
-    );
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            setPagination((prev) => ({ ...prev, currentPage: newPage }));
+        }
+    };
 
     return (
         <AdminLayout activePage="list-items">
             <div className="list-items-page">
                 <h2>All Food List</h2>
 
-                {/* New Search Form */}
+                {/* Search Form */}
                 <div className="search-form">
-                    {/*<input*/}
-                    {/*    type="text"*/}
-                    {/*    placeholder="Tìm ID"*/}
-                    {/*    value={searchTerms.id}*/}
-                    {/*    onChange={(e) => handleSearchChange('id', e.target.value)}*/}
-                    {/*    className="search-input"*/}
-                    {/*/>*/}
+                    <input
+                        type="text"
+                        placeholder="Tìm ID"
+                        value={searchTerms.id}
+                        onChange={(e) => handleSearchChange('id', e.target.value)}
+                        className="search-input"
+                    />
                     <input
                         type="text"
                         placeholder="Tìm tên"
@@ -144,7 +168,7 @@ const ListItemsPage: React.FC = () => {
                         value={searchTerms.priceFrom}
                         onChange={(e) => handleSearchChange('priceFrom', e.target.value)}
                         className="search-input"
-                        min="0" // Prevent negative numbers in HTML
+                        min="0"
                     />
                     <input
                         type="number"
@@ -152,7 +176,7 @@ const ListItemsPage: React.FC = () => {
                         value={searchTerms.priceTo}
                         onChange={(e) => handleSearchChange('priceTo', e.target.value)}
                         className="search-input"
-                        min="0" // Prevent negative numbers in HTML
+                        min="0"
                     />
                     <select
                         value={searchTerms.type}
@@ -171,97 +195,142 @@ const ListItemsPage: React.FC = () => {
                 {items.length === 0 ? (
                     <p className="no-items">Chưa có sản phẩm nào.</p>
                 ) : (
-                    <table className="items-table">
-                        <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th>Price</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {filteredItems.map((item) => (
-                            <tr key={item._id}>
-                                <td>
-                                    {item.imageURL ? (
-                                        <img src={`http://localhost:4999${item.imageURL}`} alt={item.title} className="item-image" />
-                                    ) : (
-                                        'No Image'
-                                    )}
-                                </td>
-                                <td className="fixed-width">
-                                    {editItemId === item._id ? (
-                                        <input
-                                            type="text"
-                                            value={editData.title || ''}
-                                            onChange={(e) => handleEditChange('title', e.target.value)}
-                                        />
-                                    ) : (
-                                        <span className="text-ellipsis">{item.title}</span>
-                                    )}
-                                </td>
-                                <td className="fixed-width">
-                                    {editItemId === item._id ? (
-                                        <input
-                                            type="text"
-                                            value={editData.description || ''}
-                                            onChange={(e) => handleEditChange('description', e.target.value)}
-                                        />
-                                    ) : (
-                                        <span className="text-ellipsis">{item.description}</span>
-                                    )}
-                                </td>
-                                <td className="fixed-width">
-                                    {editItemId === item._id ? (
-                                        <input
-                                            type="text"
-                                            value={editData.type || ''}
-                                            onChange={(e) => handleEditChange('type', e.target.value)}
-                                        />
-                                    ) : (
-                                        <span className="text-ellipsis">{item.type}</span>
-                                    )}
-                                </td>
-                                <td className="fixed-width">
-                                    {editItemId === item._id ? (
-                                        <input
-                                            type="number"
-                                            value={editData.price || 0}
-                                            onChange={(e) => handleEditChange('price', parseFloat(e.target.value))}
-                                            min="0" // Prevent negative numbers in HTML
-                                        />
-                                    ) : (
-                                        `$${item.price.toFixed(2)}`
-                                    )}
-                                </td>
-                                <td>
-                                    {editItemId === item._id ? (
-                                        <div className="actions">
-                                            <button onClick={() => handleSave(item._id)} className="save-btn">
-                                                Save
-                                            </button>
-                                            <button className="delete-btn" onClick={() => handleDelete(item._id)}>
-                                                Delete
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <div className="actions">
-                                            <button onClick={() => handleEdit(item)} className="update-btn">
-                                                Update
-                                            </button>
-                                            <button className="delete-btn" onClick={() => handleDelete(item._id)}>
-                                                Delete
-                                            </button>
-                                        </div>
-                                    )}
-                                </td>
+                    <>
+                        <table className="items-table">
+                            <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Action</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                            {items.map((item) => (
+                                <tr key={item._id}>
+                                    <td>
+                                        {item.imageURL ? (
+                                            <img
+                                                src={`http://localhost:4999${item.imageURL}`}
+                                                alt={item.title}
+                                                className="item-image"
+                                            />
+                                        ) : (
+                                            'No Image'
+                                        )}
+                                    </td>
+                                    <td className="fixed-width">
+                                        {editItemId === item._id ? (
+                                            <input
+                                                type="text"
+                                                value={editData.title || ''}
+                                                onChange={(e) =>
+                                                    handleEditChange('title', e.target.value)
+                                                }
+                                            />
+                                        ) : (
+                                            <span className="text-ellipsis">{item.title}</span>
+                                        )}
+                                    </td>
+                                    <td className="fixed-width">
+                                        {editItemId === item._id ? (
+                                            <input
+                                                type="text"
+                                                value={editData.description || ''}
+                                                onChange={(e) =>
+                                                    handleEditChange('description', e.target.value)
+                                                }
+                                            />
+                                        ) : (
+                                            <span className="text-ellipsis">{item.description}</span>
+                                        )}
+                                    </td>
+                                    <td className="fixed-width">
+                                        {editItemId === item._id ? (
+                                            <input
+                                                type="text"
+                                                value={editData.type || ''}
+                                                onChange={(e) =>
+                                                    handleEditChange('type', e.target.value)
+                                                }
+                                            />
+                                        ) : (
+                                            <span className="text-ellipsis">{item.type}</span>
+                                        )}
+                                    </td>
+                                    <td className="fixed-width">
+                                        {editItemId === item._id ? (
+                                            <input
+                                                type="number"
+                                                value={editData.price || 0}
+                                                onChange={(e) =>
+                                                    handleEditChange('price', e.target.value)
+                                                }
+                                                min="0"
+                                            />
+                                        ) : (
+                                            `$${item.price.toFixed(2)}`
+                                        )}
+                                    </td>
+                                    <td>
+                                        {editItemId === item._id ? (
+                                            <div className="actions">
+                                                <button
+                                                    onClick={() => handleSave(item._id)}
+                                                    className="save-btn"
+                                                >
+                                                    Save
+                                                </button>
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={() => handleDelete(item._id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div className="actions">
+                                                <button
+                                                    onClick={() => handleEdit(item)}
+                                                    className="update-btn"
+                                                >
+                                                    Update
+                                                </button>
+                                                <button
+                                                    className="delete-btn"
+                                                    onClick={() => handleDelete(item._id)}
+                                                >
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+
+                        {/* Pagination Controls */}
+                        <div className="pagination-controls">
+                            <button
+                                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                disabled={pagination.currentPage === 1}
+                            >
+                                Previous
+                            </button>
+                            <span>
+                                Page {pagination.currentPage} of {pagination.totalPages}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                disabled={!pagination.hasMore}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
         </AdminLayout>

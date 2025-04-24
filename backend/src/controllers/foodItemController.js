@@ -67,6 +67,7 @@ exports.getFoodItems = async (req, res) => {
                 totalPages,
                 totalItems,
                 itemsPerPage: parseInt(limit),
+                hasMore: parseInt(page) < totalPages // Thêm trường này để frontend biết có thể tải thêm không
             },
         });
     } catch (error) {
@@ -98,6 +99,73 @@ exports.getFoodItemsHome = async (req, res) => {
     } catch (error) {
         console.error('Error fetching food items:', error);
         res.status(500).json({ message: 'Lỗi khi lấy danh sách món ăn.' });
+    }
+};
+
+exports.getFoodItemsForAdmin = async (req, res) => {
+    try {
+        const {
+            page = 1,
+            limit = 10,
+            id,
+            title,
+            description,
+            type,
+            priceFrom,
+            priceTo,
+        } = req.query;
+
+        // Build query object for filtering
+        let query = {};
+
+        if (id) {
+            query._id = id;
+        }
+
+        if (title) {
+            query.title = { $regex: title, $options: 'i' };
+        }
+
+        if (description) {
+            query.description = { $regex: description, $options: 'i' };
+        }
+
+        if (type) {
+            query.type = { $regex: type, $options: 'i' };
+        }
+
+        if (priceFrom || priceTo) {
+            query.price = {};
+            if (priceFrom) query.price.$gte = parseFloat(priceFrom);
+            if (priceTo) query.price.$lte = parseFloat(priceTo);
+        }
+
+        // Pagination options
+        const options = {
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            limit: parseInt(limit),
+        };
+
+        // Fetch total items for pagination
+        const totalItems = await FoodItem.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / parseInt(limit));
+
+        // Fetch food items
+        const foodItems = await FoodItem.find(query, null, options);
+
+        res.status(200).json({
+            items: foodItems,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems,
+                itemsPerPage: parseInt(limit),
+                hasMore: parseInt(page) < totalPages,
+            },
+        });
+    } catch (error) {
+        console.error('Error fetching food items:', error);
+        res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error });
     }
 };
 
