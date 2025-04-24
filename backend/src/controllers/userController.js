@@ -66,13 +66,62 @@ exports.deleteUserById = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.find()
-            .select('name email address phone createdAt')
-            .sort({ createdAt: -1 });
+        const {
+            page = 1,
+            limit = 10,
+            name,
+            email,
+            phone,
+            address,
+            role,
+        } = req.query;
+
+        let query = {};
+
+        if (name) {
+            query.name = { $regex: name, $options: 'i' };
+        }
+
+        if (email) {
+            query.email = { $regex: email, $options: 'i' };
+        }
+
+        if (phone) {
+            query.phone = { $regex: phone, $options: 'i' };
+        }
+
+        if (address) {
+            query.address = { $regex: address, $options: 'i' };
+        }
+
+        if (role) {
+            query.role = { $regex: role, $options: 'i' };
+        }
+
+        // Pagination options
+        const options = {
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            limit: parseInt(limit),
+            sort: { createdAt: -1 },
+        };
+
+        // Fetch total items for pagination
+        const totalItems = await User.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / parseInt(limit));
+
+        // Fetch users
+        const users = await User.find(query, 'name email address phone role createdAt', options);
 
         res.status(200).json({
             message: 'Users retrieved successfully',
-            users
+            users,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages,
+                totalItems,
+                itemsPerPage: parseInt(limit),
+                hasMore: parseInt(page) < totalPages,
+            },
         });
     } catch (error) {
         console.error('Error getting users:', error);

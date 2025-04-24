@@ -31,11 +31,67 @@ exports.createCoupon = async (req, res) => {
     }
 };
 
-// Lấy danh sách mã giảm giá (công khai)
+// Lấy danh sách mã giảm giá với phân trang và tìm kiếm
 exports.getCoupons = async (req, res) => {
     try {
-        const coupons = await Coupon.find().sort({ createdAt: -1 });
-        res.status(200).json({ success: true, data: coupons });
+        const {
+            page = 1,
+            limit = 10,
+            code,
+            discountType,
+            status,
+            expiresFrom,
+            expiresTo,
+        } = req.query;
+
+        // Build query object for filtering
+        let query = {};
+
+        if (code) {
+            query.code = { $regex: code, $options: 'i' }; // Case-insensitive search
+        }
+
+        if (discountType) {
+            query.discountType = discountType;
+        }
+
+        if (status) {
+            query.status = status;
+        }
+
+        if (expiresFrom || expiresTo) {
+            query.expiresAt = {};
+            if (expiresFrom) query.expiresAt.$gte = new Date(expiresFrom);
+            if (expiresTo) query.expiresAt.$lte = new Date(expiresTo);
+        }
+
+        // Pagination options
+        const options = {
+            skip: (parseInt(page) - 1) * parseInt(limit),
+            limit: parseInt(limit),
+            sort: { createdAt: -1 },
+        };
+
+        // Fetch total items for pagination
+        const totalItems = await Coupon.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / parseInt(limit));
+
+        // Fetch coupons
+        const coupons = await Coupon.find(query, null, options);
+
+        res.status(200).json({
+            success: true,
+            data: {
+                coupons,
+                pagination: {
+                    currentPage: parseInt(page),
+                    totalPages,
+                    totalItems,
+                    itemsPerPage: parseInt(limit),
+                    hasMore: parseInt(page) < totalPages,
+                },
+            },
+        });
     } catch (error) {
         console.error('Error fetching coupons:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -90,6 +146,7 @@ exports.deleteCoupon = async (req, res) => {
     }
 };
 
+// Áp dụng mã giảm giá
 exports.applyCoupon = async (req, res) => {
     try {
         const { code, orderTotal } = req.body;

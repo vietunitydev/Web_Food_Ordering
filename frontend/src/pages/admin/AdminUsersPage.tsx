@@ -5,9 +5,24 @@ import { User } from "../../shared/types.ts";
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
 import axios from 'axios';
 
+interface Pagination {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasMore: boolean;
+}
+
 const AdminUsersPage: React.FC = () => {
     const { state } = useAppContext();
     const [users, setUsers] = useState<User[]>([]);
+    const [pagination, setPagination] = useState<Pagination>({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 10,
+        hasMore: false,
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerms, setSearchTerms] = useState({
@@ -29,6 +44,15 @@ const AdminUsersPage: React.FC = () => {
             try {
                 const response = await axios.get('http://localhost:4999/api/users/all', {
                     headers: { Authorization: `Bearer ${state.token}` },
+                    params: {
+                        page: pagination.currentPage,
+                        limit: pagination.itemsPerPage,
+                        name: searchTerms.name,
+                        email: searchTerms.email,
+                        phone: searchTerms.phone,
+                        address: searchTerms.address,
+                        role: searchTerms.role,
+                    },
                 });
 
                 const formattedUsers: User[] = response.data.users.map((user: any) => ({
@@ -42,6 +66,7 @@ const AdminUsersPage: React.FC = () => {
                 }));
 
                 setUsers(formattedUsers);
+                setPagination(response.data.pagination);
             } catch (err) {
                 console.error('Error fetching users:', err);
                 setError('Không thể tải danh sách người dùng. Vui lòng thử lại.');
@@ -51,7 +76,7 @@ const AdminUsersPage: React.FC = () => {
         };
 
         fetchUsers();
-    }, [state.token, state.role]);
+    }, [state.token, state.role, pagination.currentPage, searchTerms]);
 
     const handleDelete = async (userId: string) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
@@ -63,6 +88,7 @@ const AdminUsersPage: React.FC = () => {
                 const updatedUsers = users.filter((user) => user._id !== userId);
                 setUsers(updatedUsers);
                 setError(null);
+                alert('Người dùng đã được xóa!');
             } catch (err) {
                 console.error('Error deleting user:', err);
                 setError('Không thể xóa người dùng. Vui lòng thử lại.');
@@ -72,15 +98,14 @@ const AdminUsersPage: React.FC = () => {
 
     const handleSearchChange = (field: string, value: string) => {
         setSearchTerms((prev) => ({ ...prev, [field]: value }));
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
     };
 
-    const filteredUsers = users.filter((user) =>
-        user.name.toLowerCase().includes(searchTerms.name.toLowerCase()) &&
-        user.email.toLowerCase().includes(searchTerms.email.toLowerCase()) &&
-        (user.phone || '').toLowerCase().includes(searchTerms.phone.toLowerCase()) &&
-        (user.address || '').toLowerCase().includes(searchTerms.address.toLowerCase()) &&
-        user.role.toLowerCase().includes(searchTerms.role.toLowerCase())
-    );
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            setPagination((prev) => ({ ...prev, currentPage: newPage }));
+        }
+    };
 
     if (loading) {
         return (
@@ -104,48 +129,42 @@ const AdminUsersPage: React.FC = () => {
         <AdminLayout activePage="users">
             <div className="admin-users-page">
                 <h2>Users Management</h2>
+
+                <div className="search-form">
+                    <input
+                        type="text"
+                        placeholder="Tìm tên"
+                        value={searchTerms.name}
+                        onChange={(e) => handleSearchChange('name', e.target.value)}
+                        className="search-input"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Tìm email"
+                        value={searchTerms.email}
+                        onChange={(e) => handleSearchChange('email', e.target.value)}
+                        className="search-input"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Tìm SĐT"
+                        value={searchTerms.phone}
+                        onChange={(e) => handleSearchChange('phone', e.target.value)}
+                        className="search-input"
+                    />
+                    <input
+                        type="text"
+                        placeholder="Tìm địa chỉ"
+                        value={searchTerms.address}
+                        onChange={(e) => handleSearchChange('address', e.target.value)}
+                        className="search-input"
+                    />
+                </div>
+
                 {users.length === 0 ? (
                     <p className="no-users">Chưa có người dùng nào.</p>
                 ) : (
                     <>
-                        <div className="search-form">
-                            <input
-                                type="text"
-                                placeholder="Tìm tên"
-                                value={searchTerms.name}
-                                onChange={(e) => handleSearchChange('name', e.target.value)}
-                                className="search-input"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Tìm email"
-                                value={searchTerms.email}
-                                onChange={(e) => handleSearchChange('email', e.target.value)}
-                                className="search-input"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Tìm SĐT"
-                                value={searchTerms.phone}
-                                onChange={(e) => handleSearchChange('phone', e.target.value)}
-                                className="search-input"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Tìm địa chỉ"
-                                value={searchTerms.address}
-                                onChange={(e) => handleSearchChange('address', e.target.value)}
-                                className="search-input"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Tìm vai trò"
-                                value={searchTerms.role}
-                                onChange={(e) => handleSearchChange('role', e.target.value)}
-                                className="search-input"
-                            />
-                        </div>
-
                         <table className="users-table">
                             <thead>
                             <tr>
@@ -157,7 +176,7 @@ const AdminUsersPage: React.FC = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredUsers.map((user) => (
+                            {users.map((user) => (
                                 <tr key={user._id}>
                                     <td className="fixed-width name">{user.name}</td>
                                     <td className="fixed-width">{user.email}</td>
@@ -172,6 +191,24 @@ const AdminUsersPage: React.FC = () => {
                             ))}
                             </tbody>
                         </table>
+
+                        <div className="pagination-controls">
+                            <button
+                                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                disabled={pagination.currentPage === 1}
+                            >
+                                Previous
+                            </button>
+                            <span>
+                                Page {pagination.currentPage} of {pagination.totalPages}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                disabled={!pagination.hasMore}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </>
                 )}
             </div>

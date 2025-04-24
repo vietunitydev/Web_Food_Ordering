@@ -16,11 +16,25 @@ interface Coupon {
     createdAt: string;
 }
 
+interface Pagination {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasMore: boolean;
+}
+
 const AdminCouponsPage: React.FC = () => {
     const { state } = useAppContext();
     const [coupons, setCoupons] = useState<Coupon[]>([]);
+    const [pagination, setPagination] = useState<Pagination>({
+        currentPage: 1,
+        totalPages: 1,
+        totalItems: 0,
+        itemsPerPage: 10,
+        hasMore: false,
+    });
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
     const [searchTerms, setSearchTerms] = useState({
         code: '',
         discountType: '',
@@ -43,7 +57,6 @@ const AdminCouponsPage: React.FC = () => {
     useEffect(() => {
         const fetchCoupons = async () => {
             if (!state.token || state.role !== 'admin') {
-                setError('Không có quyền truy cập.');
                 setLoading(false);
                 return;
             }
@@ -51,24 +64,32 @@ const AdminCouponsPage: React.FC = () => {
             try {
                 const response = await axios.get('http://localhost:4999/api/coupons', {
                     headers: { Authorization: `Bearer ${state.token}` },
+                    params: {
+                        page: pagination.currentPage,
+                        limit: pagination.itemsPerPage,
+                        code: searchTerms.code,
+                        discountType: searchTerms.discountType,
+                        status: searchTerms.status,
+                        expiresFrom: searchTerms.expiresFrom,
+                        expiresTo: searchTerms.expiresTo,
+                    },
                 });
 
-                setCoupons(response.data.data);
+                setCoupons(response.data.data.coupons);
+                setPagination(response.data.data.pagination);
             } catch (err) {
                 console.error('Error fetching coupons:', err);
-                setError('Không thể tải danh sách mã giảm giá. Vui lòng thử lại.');
             } finally {
                 setLoading(false);
             }
         };
 
         fetchCoupons();
-    }, [state.token, state.role]);
+    }, [state.token, state.role, pagination.currentPage, searchTerms]);
 
     const handleCreateCoupon = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newCoupon.code || !newCoupon.discount || !newCoupon.discountType) {
-            setError('Vui lòng nhập đầy đủ thông tin mã giảm giá.');
             return;
         }
 
@@ -87,12 +108,10 @@ const AdminCouponsPage: React.FC = () => {
                 maxUses: 0,
                 status: 'active',
             });
-            setError(null);
             setShowCreateForm(false);
-            // alert('Mã giảm giá đã được tạo!');
+            alert('Mã giảm giá đã được tạo!');
         } catch (err) {
             console.error('Error creating coupon:', err);
-            setError('Không thể tạo mã giảm giá. Vui lòng thử lại.');
         }
     };
 
@@ -103,11 +122,9 @@ const AdminCouponsPage: React.FC = () => {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 setCoupons(coupons.filter((coupon) => coupon._id !== id));
-                setError(null);
-                // alert('Mã giảm giá đã được xóa!');
+                alert('Mã giảm giá đã được xóa!');
             } catch (err) {
                 console.error('Error deleting coupon:', err);
-                setError('Không thể xóa mã giảm giá. Vui lòng thử lại.');
             }
         }
     };
@@ -136,7 +153,7 @@ const AdminCouponsPage: React.FC = () => {
             );
             setCoupons(updatedCoupons);
             setEditCouponId(null);
-            // alert('Mã giảm giá đã được cập nhật!');
+            alert('Mã giảm giá đã được cập nhật!');
         } catch (error) {
             console.error('Error updating coupon:', error);
             alert('Lỗi khi cập nhật mã giảm giá!');
@@ -145,17 +162,14 @@ const AdminCouponsPage: React.FC = () => {
 
     const handleSearchChange = (field: string, value: string) => {
         setSearchTerms((prev) => ({ ...prev, [field]: value }));
+        setPagination((prev) => ({ ...prev, currentPage: 1 }));
     };
 
-    const filteredCoupons = coupons.filter((coupon) => {
-        const matchesCode = coupon.code.toLowerCase().includes(searchTerms.code.toLowerCase());
-        const matchesType = searchTerms.discountType ? coupon.discountType.toLowerCase() === searchTerms.discountType.toLowerCase() : true;
-        const matchesStatus = searchTerms.status ? coupon.status.toLowerCase() === searchTerms.status.toLowerCase() : true;
-        const matchesExpires = (!searchTerms.expiresFrom || new Date(coupon.expiresAt || '') >= new Date(searchTerms.expiresFrom)) &&
-            (!searchTerms.expiresTo || new Date(coupon.expiresAt || '') <= new Date(searchTerms.expiresTo));
-
-        return matchesCode && matchesType && matchesStatus && matchesExpires;
-    });
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= pagination.totalPages) {
+            setPagination((prev) => ({ ...prev, currentPage: newPage }));
+        }
+    };
 
     if (loading) {
         return (
@@ -165,15 +179,6 @@ const AdminCouponsPage: React.FC = () => {
         );
     }
 
-    if (error) {
-        return (
-            <AdminLayout activePage="coupons">
-                <div className="admin-coupons-page">
-                    <p className="error-message">{error}</p>
-                </div>
-            </AdminLayout>
-        );
-    }
 
     return (
         <AdminLayout activePage="coupons">
@@ -256,58 +261,60 @@ const AdminCouponsPage: React.FC = () => {
                     </form>
                 )}
 
-                {coupons.length > 0 && (
-                    <>
-                        <div className="search-form">
-                            <div className="search-group">
-                                <input
-                                    type="text"
-                                    value={searchTerms.code}
-                                    onChange={(e) => handleSearchChange('code', e.target.value)}
-                                    className="search-input"
-                                    placeholder="Tìm mã..."
-                                />
-                            </div>
-                            <div className="search-group">
-                                <select
-                                    value={searchTerms.discountType}
-                                    onChange={(e) => handleSearchChange('discountType', e.target.value)}
-                                    className="search-input"
-                                >
-                                    <option value="">Tất cả loại</option>
-                                    <option value="fixed">Số tiền cố định</option>
-                                    <option value="percentage">Phần trăm</option>
-                                </select>
-                            </div>
-                            <div className="search-group">
-                                <input
-                                    type="date"
-                                    value={searchTerms.expiresFrom}
-                                    onChange={(e) => handleSearchChange('expiresFrom', e.target.value)}
-                                    className="search-input"
-                                />
-                            </div>
-                            <div className="search-group">
-                                <input
-                                    type="date"
-                                    value={searchTerms.expiresTo}
-                                    onChange={(e) => handleSearchChange('expiresTo', e.target.value)}
-                                    className="search-input"
-                                />
-                            </div>
-                            <div className="search-group">
-                                <select
-                                    value={searchTerms.status}
-                                    onChange={(e) => handleSearchChange('status', e.target.value)}
-                                    className="search-input"
-                                >
-                                    <option value="">Tất cả trạng thái</option>
-                                    <option value="active">Kích hoạt</option>
-                                    <option value="inactive">Không kích hoạt</option>
-                                </select>
-                            </div>
-                        </div>
+                <div className="search-form">
+                    <div className="search-group">
+                        <input
+                            type="text"
+                            value={searchTerms.code}
+                            onChange={(e) => handleSearchChange('code', e.target.value)}
+                            className="search-input"
+                            placeholder="Tìm mã..."
+                        />
+                    </div>
+                    <div className="search-group">
+                        <select
+                            value={searchTerms.discountType}
+                            onChange={(e) => handleSearchChange('discountType', e.target.value)}
+                            className="search-input"
+                        >
+                            <option value="">Tất cả loại</option>
+                            <option value="fixed">Số tiền cố định</option>
+                            <option value="percentage">Phần trăm</option>
+                        </select>
+                    </div>
+                    <div className="search-group">
+                        <input
+                            type="date"
+                            value={searchTerms.expiresFrom}
+                            onChange={(e) => handleSearchChange('expiresFrom', e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+                    <div className="search-group">
+                        <input
+                            type="date"
+                            value={searchTerms.expiresTo}
+                            onChange={(e) => handleSearchChange('expiresTo', e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+                    <div className="search-group">
+                        <select
+                            value={searchTerms.status}
+                            onChange={(e) => handleSearchChange('status', e.target.value)}
+                            className="search-input"
+                        >
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active">Kích hoạt</option>
+                            <option value="inactive">Không kích hoạt</option>
+                        </select>
+                    </div>
+                </div>
 
+                {coupons.length == 0 ?
+                    <p className="no-coupons">Không có mã giảm giá nào.</p>
+                    : (
+                    <>
                         <table className="coupons-table">
                             <thead>
                             <tr>
@@ -322,7 +329,7 @@ const AdminCouponsPage: React.FC = () => {
                             </tr>
                             </thead>
                             <tbody>
-                            {filteredCoupons.map((coupon) => (
+                            {coupons.map((coupon) => (
                                 <tr key={coupon._id}>
                                     <td>
                                         {editCouponId === coupon._id ? (
@@ -413,11 +420,25 @@ const AdminCouponsPage: React.FC = () => {
                             ))}
                             </tbody>
                         </table>
-                    </>
-                )}
 
-                {coupons.length === 0 && !loading && !error && (
-                    <p className="no-coupons">Chưa có mã giảm giá nào.</p>
+                        <div className="pagination-controls">
+                            <button
+                                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                disabled={pagination.currentPage === 1}
+                            >
+                                Previous
+                            </button>
+                            <span>
+                                Page {pagination.currentPage} of {pagination.totalPages}
+                            </span>
+                            <button
+                                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                disabled={!pagination.hasMore}
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </>
                 )}
             </div>
         </AdminLayout>
