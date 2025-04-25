@@ -242,8 +242,8 @@ exports.createCheckoutSession = async (req, res) => {
             payment_method_types: ['card'],
             line_items: lineItems,
             mode: 'payment',
-            success_url: `http://localhost:3000/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-            cancel_url: 'http://localhost:3000/checkout',
+            success_url: `${process.env.FontEndUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${process.env.FontEndUrl}/checkout`,
             discounts: discount > 0 ? [{
                 coupon: await createStripeCoupon(discount),
             }] : [],

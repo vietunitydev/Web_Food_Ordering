@@ -24,7 +24,7 @@ const app = express();
 app.use(express.json());
 // CORS stands for Cross-Origin Resource Sharing.
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: process.env.FontEndUrl,
     credentials: true,
 }))
 
