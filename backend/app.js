@@ -40,6 +40,10 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/coupons', couponRoutes);
 
+app.get('/', (req, res) => {
+    res.send('Backend is live!');
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB' + process.env.MONGODB_URI))
