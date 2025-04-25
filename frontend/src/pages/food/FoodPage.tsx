@@ -44,7 +44,7 @@ const FoodPage: React.FC = () => {
                     ...(searchTerm && { search: searchTerm }),
                 });
 
-                const url = `http://localhost:4999/api/foodItems?${params.toString()}`;
+                const url = `${import.meta.env.VITE_API_URL}/api/foodItems?${params.toString()}`;
                 const response = await axios.get(url);
 
                 setItems(response.data.items);
@@ -69,7 +69,7 @@ const FoodPage: React.FC = () => {
 
         try {
             const response = await axios.post(
-                'http://localhost:4999/api/carts/add',
+                `${import.meta.env.VITE_API_URL}/api/carts/add`,
                 { foodItemId: item._id, quantity: 1 },
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
@@ -109,7 +109,7 @@ const FoodPage: React.FC = () => {
                     {items.map((item) => (
                         <div key={item._id} className="pizza-card">
                             <img
-                                src={`http://localhost:4999${item.imageURL}`}
+                                src={`${import.meta.env.REACT_APP_API_URL}${item.imageURL}`}
                                 alt={item.title}
                                 className="pizza-image"
                             />

@@ -46,7 +46,7 @@ const ResetPasswordForm: React.FC = () => {
         try {
             // Gọi API đặt lại mật khẩu
             const response = await axios.put(
-                `http://localhost:4999/api/auth/reset-password/${resettoken}`,
+                `${import.meta.env.VITE_API_URL}/api/auth/reset-password/${resettoken}`,
                 { password }
             );
 

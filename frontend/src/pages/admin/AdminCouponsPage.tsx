@@ -62,7 +62,7 @@ const AdminCouponsPage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get('http://localhost:4999/api/coupons', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/coupons`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                     params: {
                         page: pagination.currentPage,
@@ -95,7 +95,7 @@ const AdminCouponsPage: React.FC = () => {
 
         try {
             const response = await axios.post(
-                'http://localhost:4999/api/coupons',
+                `${process.env.REACT_APP_API_URL}/api/coupons`,
                 newCoupon,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
@@ -118,7 +118,7 @@ const AdminCouponsPage: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa mã giảm giá này?')) {
             try {
-                await axios.delete(`http://localhost:4999/api/coupons/${id}`, {
+                await axios.delete(`${process.env.REACT_APP_API_URL}/api/coupons/${id}`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 setCoupons(coupons.filter((coupon) => coupon._id !== id));
@@ -144,7 +144,7 @@ const AdminCouponsPage: React.FC = () => {
     const handleSave = async (id: string) => {
         try {
             const response = await axios.put(
-                `http://localhost:4999/api/coupons/${id}`,
+                `${process.env.REACT_APP_API_URL}/api/coupons/${id}`,
                 editData,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );

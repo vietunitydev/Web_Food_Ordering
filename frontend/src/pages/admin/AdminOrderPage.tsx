@@ -45,7 +45,7 @@ const AdminOrdersPage: React.FC = () => {
             // }
 
             try {
-                const response = await axios.get('http://localhost:4999/api/orders/all', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/all`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                     params: {
                         page: pagination.currentPage,
@@ -81,7 +81,7 @@ const AdminOrdersPage: React.FC = () => {
 
         try {
             await axios.put(
-                `http://localhost:4999/api/orders/${id}/status`,
+                `${import.meta.env.VITE_API_URL}/api/orders/${id}/status`,
                 { status: newStatus },
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );

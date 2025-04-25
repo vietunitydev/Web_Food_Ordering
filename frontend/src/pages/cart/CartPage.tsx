@@ -19,7 +19,7 @@ const CartPage: React.FC = () => {
                 return;
             }
             try {
-                const response = await axios.get('http://localhost:4999/api/carts/my-cart', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/carts/my-cart`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 const cartItems = response.data.list.map((item: any) => ({
@@ -51,7 +51,7 @@ const CartPage: React.FC = () => {
         try {
             for (const item of state.cart) {
                 await axios.put(
-                    'http://localhost:4999/api/carts/update',
+                    `${import.meta.env.VITE_API_URL}/api/carts/update`,
                     { foodItemId: item.id, quantity: item.quantity },
                     { headers: { Authorization: `Bearer ${state.token}` } }
                 );
@@ -77,7 +77,7 @@ const CartPage: React.FC = () => {
         try {
             const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
             const response = await axios.post(
-                'http://localhost:4999/api/coupons/apply',
+                `${import.meta.env.REACT_APP_API_URL}/api/coupons/apply`,
                 { code: promoCode, orderTotal: subtotal },
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
@@ -140,7 +140,7 @@ const CartPage: React.FC = () => {
                                 <tr key={item.id}>
                                     <td>
                                         <img
-                                            src={`http://localhost:4999${item.imageURL}`}
+                                            src={`${import.meta.env.VITE_API_URL}${item.imageURL}`}
                                             alt={item.name}
                                             className="cart-item-image"
                                         />

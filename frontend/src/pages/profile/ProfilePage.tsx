@@ -29,7 +29,7 @@ const ProfilePage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get('http://localhost:4999/api/auth/me', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
 
@@ -74,7 +74,7 @@ const ProfilePage: React.FC = () => {
 
         try {
             await axios.put(
-                'http://localhost:4999/api/users/update',
+                `$${import.meta.env.VITE_API_URL}/api/users/update`,
                 updatedUser,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
@@ -108,7 +108,7 @@ const ProfilePage: React.FC = () => {
 
         try {
             const response = await axios.put(
-                'http://localhost:4999/api/auth/change-password',
+                `${import.meta.env.VITE_API_URL}/api/auth/change-password`,
                 { currentPassword, newPassword },
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
@@ -129,7 +129,7 @@ const ProfilePage: React.FC = () => {
     const handleDeleteAccount = async () => {
         if (window.confirm('Bạn có chắc chắn muốn xóa tài khoản? Hành động này không thể hoàn tác.')) {
             try {
-                await axios.delete('http://localhost:4999/api/users/delete', {
+                await axios.delete(`$${import.meta.env.VITE_API_URL}/api/users/delete`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
 

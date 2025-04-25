@@ -46,7 +46,7 @@ const ListItemsPage: React.FC = () => {
         const fetchItems = async () => {
             if (state.role !== 'admin') return;
             try {
-                const response = await axios.get('http://localhost:4999/api/foodItems/get_food_admin', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/foodItems/get_food_admin`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                     params: {
                         page: pagination.currentPage,
@@ -71,7 +71,7 @@ const ListItemsPage: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
             try {
-                await axios.delete(`http://localhost:4999/api/foodItems/${id}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/foodItems/${id}`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 setItems((prevItems) => prevItems.filter((item) => item._id !== id));
@@ -101,7 +101,7 @@ const ListItemsPage: React.FC = () => {
     const handleSave = async (id: string) => {
         try {
             const response = await axios.put(
-                `http://localhost:4999/api/foodItems/${id}`,
+                `${import.meta.env.VITE_API_URL}/api/foodItems/${id}`,
                 editData,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
@@ -206,7 +206,7 @@ const ListItemsPage: React.FC = () => {
                                     <td>
                                         {item.imageURL ? (
                                             <img
-                                                src={`http://localhost:4999${item.imageURL}`}
+                                                src={`${import.meta.env.VITE_API_URL}${item.imageURL}`}
                                                 alt={item.title}
                                                 className="item-image"
                                             />

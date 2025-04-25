@@ -64,24 +64,24 @@ const Home = () => {
             setIsLoading(true);
             try {
                 // Lấy 4 món nổi bật cho hero section
-                const menuResponse = await axios.get('http://localhost:4999/api/foodItems/get_home_product?featured=true&limit=4');
+                const menuResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/foodItems/get_home_product?featured=true&limit=4`);
                 const menuData = menuResponse.data.map((item: any) => ({
                     id: item._id,
                     name: item.title,
                     description: item.description || 'Delicious dish',
                     price: item.price.toFixed(2),
-                    image: `http://localhost:4999${item.imageURL}`,
+                    image: `${import.meta.env.VITE_API_URL}${item.imageURL}`,
                 }));
                 setMenuItems(menuData);
 
                 // Lấy top 6 món theo rating cho product grid
-                const productResponse = await axios.get('http://localhost:4999/api/foodItems/get_home_product?sort=rating&order=desc&limit=6');
+                const productResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/foodItems/get_home_product?sort=rating&order=desc&limit=6`);
                 const productData = productResponse.data.map((item: any) => ({
                     id: item._id,
                     name: item.title,
                     rating: item.rating || 4.5,
                     price: item.price.toFixed(2),
-                    image: `http://localhost:4999${item.imageURL}`,
+                    image: `${import.meta.env.VITE_API_URL}${item.imageURL}`,
                 }));
                 setProducts(productData);
             } catch (err: any) {
@@ -108,7 +108,7 @@ const Home = () => {
 
         try {
             const response = await axios.post(
-                'http://localhost:4999/api/carts/add',
+                `${import.meta.env.VITE_API_URL}/api/carts/add`,
                 { foodItemId: item._id, quantity: 1 },
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );

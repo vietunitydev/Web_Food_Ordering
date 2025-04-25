@@ -42,7 +42,7 @@ const OrderHistoryPage: React.FC = () => {
                     return;
                 }
 
-                const response = await axios.get('http://localhost:4999/api/orders/history', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/history`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 

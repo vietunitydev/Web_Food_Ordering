@@ -24,14 +24,16 @@ const LoginForm: React.FC = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:4999/api/auth/login', {
+            console.log("login 1")
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                 email,
                 password,
             });
+            console.log("login 2")
 
             if (response.data.token) {
                 const token = response.data.token;
-                const userResponse = await axios.get('http://localhost:4999/api/auth/me', {
+                const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const role = userResponse.data.data.role;

@@ -36,7 +36,7 @@ const CheckoutPage: React.FC = () => {
             }
             setIsLoading(true);
             try {
-                const response = await axios.get('http://localhost:4999/api/carts/my-cart', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/carts/my-cart`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
 
@@ -49,7 +49,7 @@ const CheckoutPage: React.FC = () => {
 
                 setCart(cartItems);
 
-                const userResponse = await axios.get('http://localhost:4999/api/auth/me', {
+                const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 const user = userResponse.data.data;
@@ -73,7 +73,7 @@ const CheckoutPage: React.FC = () => {
             if (sessionId) {
                 setIsLoading(true);
                 try {
-                    const response = await axios.get(`http://localhost:4999/api/orders/verify-session/${sessionId}`, {
+                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/verify-session/${sessionId}`, {
                         headers: { Authorization: `Bearer ${state.token}` },
                     });
                     if (response.data.success) {
@@ -148,7 +148,7 @@ const CheckoutPage: React.FC = () => {
 
             console.log('Checkout data:', checkoutData);
 
-            const response = await axios.post('http://localhost:4999/api/orders/create-checkout-session', checkoutData, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders/create-checkout-session`, checkoutData, {
                 headers: { Authorization: `Bearer ${state.token}` },
             });
 

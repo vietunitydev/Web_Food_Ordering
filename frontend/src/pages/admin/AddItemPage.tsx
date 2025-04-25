@@ -53,7 +53,7 @@ const AddItemPage: React.FC = () => {
         console.log(formData);
 
         try {
-            await axios.post('http://localhost:4999/api/foodItems', data, {
+            await axios.post(`${import.meta.env.VITE_API_URL}/api/foodItems`, data, {
                 headers: { Authorization: `Bearer ${state.token}` }
             });
             alert('Sản phẩm đã được thêm thành công!');

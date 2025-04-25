@@ -42,7 +42,7 @@ const AdminUsersPage: React.FC = () => {
             }
 
             try {
-                const response = await axios.get('http://localhost:4999/api/users/all', {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/all`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                     params: {
                         page: pagination.currentPage,
@@ -81,7 +81,7 @@ const AdminUsersPage: React.FC = () => {
     const handleDelete = async (userId: string) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
             try {
-                await axios.delete(`http://localhost:4999/api/users/${userId}`, {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/api/users/${userId}`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
 
