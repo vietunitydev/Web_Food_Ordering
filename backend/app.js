@@ -42,7 +42,7 @@ app.use('/api/coupons', couponRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
+    .then(() => console.log('Connected to MongoDB' + process.env.MONGODB_URI))
     .catch(err => console.error('Failed to connect to MongoDB:', err));
 
 // Start server

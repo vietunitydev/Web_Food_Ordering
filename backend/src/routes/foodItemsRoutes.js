@@ -21,8 +21,9 @@ const upload = multer({ storage });
 router.post('/', authMiddleware, adminMiddleware, upload.single('image'), createFoodItem);
 router.get('/', getFoodItems);
 router.get('/get_home_product', getFoodItemsHome);
-router.get('/get_food_admin', getFoodItemsForAdmin);
-router.get('/all', getAllFoodItems);
+
+router.get('/get_food_admin', adminMiddleware, getFoodItemsForAdmin);
+router.get('/all', adminMiddleware, getAllFoodItems);
 router.put('/:id', authMiddleware, adminMiddleware, upload.single('image'), updateFoodItem);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteFoodItem);
 

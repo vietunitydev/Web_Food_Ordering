@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createOrder, getOrderHistory, updateOrderStatus, getAllOrders, updateOrder, createCheckoutSession,
-    verifySession
+    verifySession, getOrders
 } = require('../controllers/orderController');
 const { authMiddleware, userMiddleware, adminMiddleware, protect} = require('../middleware/authMiddleWare');
 
@@ -11,6 +11,7 @@ router.get('/history', authMiddleware, userMiddleware, getOrderHistory);
 
 // Admin routes
 router.get('/all', authMiddleware, adminMiddleware, getAllOrders);
+router.get('/', authMiddleware, adminMiddleware, getOrders);
 router.put('/:id/status', authMiddleware, adminMiddleware, updateOrderStatus);
 router.put('/:id', authMiddleware, adminMiddleware, updateOrder);
 

@@ -65,6 +65,18 @@ exports.getOrderHistory = async (req, res) => {
 
 exports.getAllOrders = async (req, res) => {
     try {
+        // Fetch orders with population
+        const orders = await Order.find().populate('items.foodItemId');
+
+        res.status(200).json({orders });
+    } catch (error) {
+        console.error('Error getting all orders:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+exports.getOrders = async (req, res) => {
+    try {
         const {
             page = 1,
             limit = 10,
