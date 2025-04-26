@@ -70,7 +70,7 @@ const Home = () => {
                     name: item.title,
                     description: item.description || 'Delicious dish',
                     price: item.price.toFixed(2),
-                    image: `${import.meta.env.VITE_API_URL}${item.imageURL}`,
+                    image: `${item.imageURL}`,
                 }));
                 setMenuItems(menuData);
 
@@ -81,7 +81,7 @@ const Home = () => {
                     name: item.title,
                     rating: item.rating || 4.5,
                     price: item.price.toFixed(2),
-                    image: `${import.meta.env.VITE_API_URL}${item.imageURL}`,
+                    image: `${item.imageURL}`,
                 }));
                 setProducts(productData);
             } catch (err: any) {

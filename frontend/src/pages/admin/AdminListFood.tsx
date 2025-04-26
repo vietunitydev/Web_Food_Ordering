@@ -206,7 +206,7 @@ const ListItemsPage: React.FC = () => {
                                     <td>
                                         {item.imageURL ? (
                                             <img
-                                                src={`${import.meta.env.VITE_API_URL}${item.imageURL}`}
+                                                src={`${item.imageURL}`}
                                                 alt={item.title}
                                                 className="item-image"
                                             />

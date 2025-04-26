@@ -30,8 +30,8 @@ router.post('/', authMiddleware, adminMiddleware, upload.single('image'), create
 router.get('/', getFoodItems);
 router.get('/get_home_product', getFoodItemsHome);
 
-router.get('/get_food_admin', adminMiddleware, getFoodItemsForAdmin);
-router.get('/all', adminMiddleware, getAllFoodItems);
+router.get('/get_food_admin', authMiddleware, adminMiddleware, getFoodItemsForAdmin);
+router.get('/all',authMiddleware, adminMiddleware, getAllFoodItems);
 router.put('/:id', authMiddleware, adminMiddleware, upload.single('image'), updateFoodItem);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteFoodItem);
 

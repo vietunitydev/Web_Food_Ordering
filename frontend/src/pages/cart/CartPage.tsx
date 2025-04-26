@@ -140,7 +140,7 @@ const CartPage: React.FC = () => {
                                 <tr key={item.id}>
                                     <td>
                                         <img
-                                            src={`${import.meta.env.VITE_API_URL}${item.imageURL}`}
+                                            src={`${item.imageURL}`}
                                             alt={item.name}
                                             className="cart-item-image"
                                         />
