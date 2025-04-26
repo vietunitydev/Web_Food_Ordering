@@ -109,7 +109,7 @@ const FoodPage: React.FC = () => {
                     {items.map((item) => (
                         <div key={item._id} className="pizza-card">
                             <img
-                                src={`${import.meta.env.REACT_APP_API_URL}${item.imageURL}`}
+                                src={`${item.imageURL}`}
                                 alt={item.title}
                                 className="pizza-image"
                             />
