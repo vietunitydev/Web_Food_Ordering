@@ -45,7 +45,7 @@ const AdminOrdersPage: React.FC = () => {
             // }
 
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/all`, {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/`, {
                     headers: { Authorization: `Bearer ${state.token}` },
                     params: {
                         page: pagination.currentPage,

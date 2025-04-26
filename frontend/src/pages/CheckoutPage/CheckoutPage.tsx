@@ -80,7 +80,6 @@ const CheckoutPage: React.FC = () => {
                         dispatch({ type: actions.CLEAR_CART });
                         dispatch({ type: actions.CLEAR_DISCOUNT });
                         alert('Đặt hàng thành công! Bạn có thể xem lịch sử đơn hàng ở trang "Order History".');
-                        console.log("success", response.data);
                         navigate('/order-history', { replace: true });
                     } else {
                         setErrorMessage('Thanh toán không thành công. Vui lòng thử lại.');
@@ -146,7 +145,6 @@ const CheckoutPage: React.FC = () => {
                 },
             };
 
-            console.log('Checkout data:', checkoutData);
 
             const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/orders/create-checkout-session`, checkoutData, {
                 headers: { Authorization: `Bearer ${state.token}` },
@@ -154,7 +152,6 @@ const CheckoutPage: React.FC = () => {
 
             const { sessionId } = response.data;
 
-            console.log('response data:', response.data);
 
             const stripe = await stripePromise;
             if (stripe) {

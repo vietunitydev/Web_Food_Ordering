@@ -108,14 +108,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             if (state.token) {
                 dispatch({ type: actionTypes.SET_LOADING, payload: true });
                 try {
-                    console.log("me1")
                     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
                         headers: { Authorization: `Bearer ${state.token}` },
                     });
-                    console.log("me2")
 
                     const data = await response.json();
-                    console.log("me3 data", data);
 
                     if (response.ok) {
                         dispatch({ type: actionTypes.LOGIN, payload: { token: state.token, role: data.data.role } });

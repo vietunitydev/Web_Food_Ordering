@@ -1,4 +1,4 @@
-const sendEmail = require("./utils/sendEmail");
+const sendEmail = require("../utils/sendEmail");
 require('dotenv').config();
 
 async function testGmail() {

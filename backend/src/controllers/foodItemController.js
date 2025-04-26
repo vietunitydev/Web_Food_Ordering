@@ -2,13 +2,13 @@ const FoodItem = require('../models/FoodItem');
 const cloudinary = require('cloudinary').v2;
 
 exports.createFoodItem = async (req, res) => {
-    console.log('Request received');
-    console.log('Request body:', req.body);
-    console.log('File:', req.file);
+    // console.log('Request received');
+    // console.log('Request body:', req.body);
+    // console.log('File:', req.file);
     try {
         const { title, description, price, type } = req.body;
         if (!title || !description || !price || !type || !req.file) {
-            console.log('Missing fields:', { title, description, price, type, file: req.file });
+            // console.log('Missing fields:', { title, description, price, type, file: req.file });
             return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
         }
 
@@ -22,7 +22,7 @@ exports.createFoodItem = async (req, res) => {
             type,
         });
 
-        console.log('Dữ liệu sẽ lưu:', newFoodItem);
+        // console.log('Dữ liệu sẽ lưu:', newFoodItem);
         const savedItem = await newFoodItem.save();
         res.status(201).json(savedItem);
     } catch (error) {
