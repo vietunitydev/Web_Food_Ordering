@@ -1,4 +1,5 @@
 const FoodItem = require('../models/FoodItem');
+const cloudinary = require('cloudinary').v2;
 
 exports.createFoodItem = async (req, res) => {
     console.log('Request received');
@@ -11,7 +12,8 @@ exports.createFoodItem = async (req, res) => {
             return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
         }
 
-        const imageURL = `/uploads/${req.file.filename}`;
+        const imageURL = req.file.path;
+
         const newFoodItem = new FoodItem({
             title,
             description,
@@ -193,7 +195,8 @@ exports.updateFoodItem = async (req, res) => {
         const updateData = { title, description, price: parseFloat(price), type };
 
         if (req.file) {
-            updateData.imageURL = `/uploads/${req.file.filename}`;
+            // Thay đổi cách lấy imageURL từ Cloudinary
+            updateData.imageURL = req.file.path;
         }
 
         const updatedItem = await FoodItem.findByIdAndUpdate(req.params.id, updateData, { new: true });
@@ -206,12 +209,23 @@ exports.updateFoodItem = async (req, res) => {
     }
 };
 
+// Xóa ảnh trên Cloudinary khi xóa sản phẩm
 exports.deleteFoodItem = async (req, res) => {
     try {
-        const deletedItem = await FoodItem.findByIdAndDelete(req.params.id);
-        if (!deletedItem) {
+        const item = await FoodItem.findById(req.params.id);
+        if (!item) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
         }
+
+        // Xóa ảnh từ Cloudinary nếu có
+        if (item.imageURL) {
+            // Trích xuất public_id từ URL
+            const publicId = item.imageURL.split('/').pop().split('.')[0];
+            // Xóa ảnh từ Cloudinary
+            await cloudinary.uploader.destroy(`food-app/${publicId}`);
+        }
+
+        const deletedItem = await FoodItem.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Sản phẩm đã được xóa' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi xóa sản phẩm', error });

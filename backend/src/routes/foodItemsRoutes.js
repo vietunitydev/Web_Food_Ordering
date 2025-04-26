@@ -4,16 +4,24 @@ const { createFoodItem, getFoodItems, updateFoodItem, deleteFoodItem, getAllFood
     getFoodItemsForAdmin
 } = require('../controllers/foodItemController');
 const multer = require('multer');
-const path = require('path');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleWare');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'src/uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Cấu hình storage cho Cloudinary
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'food-app', // tên thư mục lưu trên Cloudinary
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
+        transformation: [{ width: 500, height: 500, crop: 'limit' }]
+    }
 });
 
 const upload = multer({ storage });
