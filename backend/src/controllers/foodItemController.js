@@ -1,16 +1,18 @@
 const FoodItem = require('../models/FoodItem');
 const cloudinary = require('cloudinary').v2;
 
+exports.validateFoodInfoBeforeUpload = async (req, res, next) => {
+    const { title, description, price, type } = req.body;
+    if (!title || !description || !price || !type || !req.file) {
+        return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
+    }
+
+    next();
+}
+
 exports.createFoodItem = async (req, res) => {
-    // console.log('Request received');
-    // console.log('Request body:', req.body);
-    // console.log('File:', req.file);
     try {
         const { title, description, price, type } = req.body;
-        if (!title || !description || !price || !type || !req.file) {
-            // console.log('Missing fields:', { title, description, price, type, file: req.file });
-            return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
-        }
 
         const imageURL = req.file.path;
 
@@ -22,11 +24,15 @@ exports.createFoodItem = async (req, res) => {
             type,
         });
 
-        // console.log('Dữ liệu sẽ lưu:', newFoodItem);
         const savedItem = await newFoodItem.save();
         res.status(201).json(savedItem);
     } catch (error) {
         console.error('Lỗi MongoDB:', error);
+
+        // delete image in cloudinary
+        const publicId = imageURL.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(`food-app/${publicId}`);
+
         res.status(500).json({ message: 'Lỗi khi thêm sản phẩm', error });
     }
 };
@@ -69,7 +75,7 @@ exports.getFoodItems = async (req, res) => {
                 totalPages,
                 totalItems,
                 itemsPerPage: parseInt(limit),
-                hasMore: parseInt(page) < totalPages // Thêm trường này để frontend biết có thể tải thêm không
+                hasMore: parseInt(page) < totalPages
             },
         });
     } catch (error) {
@@ -195,7 +201,6 @@ exports.updateFoodItem = async (req, res) => {
         const updateData = { title, description, price: parseFloat(price), type };
 
         if (req.file) {
-            // Thay đổi cách lấy imageURL từ Cloudinary
             updateData.imageURL = req.file.path;
         }
 
@@ -217,11 +222,8 @@ exports.deleteFoodItem = async (req, res) => {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
         }
 
-        // Xóa ảnh từ Cloudinary nếu có
         if (item.imageURL) {
-            // Trích xuất public_id từ URL
             const publicId = item.imageURL.split('/').pop().split('.')[0];
-            // Xóa ảnh từ Cloudinary
             await cloudinary.uploader.destroy(`food-app/${publicId}`);
         }
 

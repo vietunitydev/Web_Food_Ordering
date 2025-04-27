@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createFoodItem, getFoodItems, updateFoodItem, deleteFoodItem, getAllFoodItems, getFoodItemsHome,
-    getFoodItemsForAdmin
+    getFoodItemsForAdmin, validateFoodInfoBeforeUpload
 } = require('../controllers/foodItemController');
 const multer = require('multer');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleWare');
@@ -26,7 +26,7 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-router.post('/', authMiddleware, adminMiddleware, upload.single('image'), createFoodItem);
+router.post('/', authMiddleware, adminMiddleware, validateFoodInfoBeforeUpload, upload.single('image'), createFoodItem);
 router.get('/', getFoodItems);
 router.get('/get_home_product', getFoodItemsHome);
 

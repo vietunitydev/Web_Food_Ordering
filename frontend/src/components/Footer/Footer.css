@@ -1,5 +1,4 @@
 .footer {
-    /*background: #f5f7fa;*/
     padding: 40px 20px;
     color: #666;
     font-family: Arial, sans-serif;
@@ -12,19 +11,21 @@
     justify-content: space-between;
     max-width: 1200px;
     margin: 0 auto;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* Prevent wrapping by default */
+    gap: 20px; /* Use gap for spacing between items */
 }
 
 .footer-section {
     flex: 1;
-    min-width: 200px;
-    margin: 10px;
+    min-width: 0; /* Allow sections to shrink below their content size */
+    margin: 0; /* Remove margin and use gap instead */
 }
 
 .footer-section h3 {
     color: #333;
     font-size: 1.2rem;
     margin-bottom: 15px;
+    white-space: nowrap; /* Prevent headings from wrapping */
 }
 
 .footer-section p {
@@ -34,6 +35,8 @@
 
 .social-icons {
     margin-top: 15px;
+    display: flex;
+    flex-wrap: nowrap;
 }
 
 .social-icons a {
@@ -41,36 +44,98 @@
     display: inline-block;
 }
 
-.icon {
-    display: inline-block;
-    width: 24px;
-    height: 24px;
-    background-size: cover;
-    background-repeat: no-repeat;
+.social-icons img {
+    max-width: 24px; /* Limit icon size */
+    height: auto;
 }
 
 .email-input {
     display: flex;
     margin-top: 15px;
+    max-width: 100%;
 }
 
 .email-input input {
     flex: 1;
-    padding: 12px;
+    padding: 8px;
     border: 1px solid #ccc;
     border-radius: 20px 0 0 20px;
     outline: none;
+    min-width: 0; /* Allow input to shrink */
+    font-size: 0.9rem;
 }
 
 .email-input button {
-    padding: 8px 15px;
+    padding: 8px 12px;
     background: #ff6200;
     color: #fff;
     border: none;
     border-radius: 0 20px 20px 0;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .email-input button:hover {
     background: #e65c00;
+}
+
+/* Media queries for responsive design */
+@media screen and (max-width: 1024px) {
+    .footer-section {
+        font-size: 0.9rem;
+    }
+
+    .footer-section h3 {
+        font-size: 1.1rem;
+    }
+}
+
+@media screen and (max-width: 900px) {
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px 20px;
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .footer-content {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto; /* Enable horizontal scrolling */
+        scrollbar-width: thin; /* For Firefox */
+        -ms-overflow-style: none; /* For Internet Explorer and Edge */
+        padding-bottom: 15px;
+    }
+
+    .footer-content::-webkit-scrollbar {
+        height: 6px; /* Height of the scrollbar */
+    }
+
+    .footer-content::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2); /* Color of the scrollbar thumb */
+        border-radius: 3px;
+    }
+
+    .footer-section {
+        flex: 0 0 auto;
+        width: 200px; /* Fixed width for each section */
+        margin-right: 20px;
+    }
+}
+
+/* Extra small devices */
+@media screen and (max-width: 400px) {
+    .footer-section {
+        width: 180px; /* Slightly smaller fixed width */
+    }
+
+    .email-input input {
+        padding: 6px;
+        font-size: 0.85rem;
+    }
+
+    .email-input button {
+        padding: 6px 10px;
+    }
 }
