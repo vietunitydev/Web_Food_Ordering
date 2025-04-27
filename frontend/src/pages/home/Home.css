@@ -183,8 +183,8 @@
 
 .product-item img {
     width: 100%;
-    height: 200px; /* Chiều cao ảnh cố định */
-    object-fit: cover; /* Crop ảnh nếu tỷ lệ không khớp */
+    height: 200px;
+    object-fit: cover;
     border-radius: 10px 10px 0 0;
 }
 
@@ -569,6 +569,23 @@
         height: 190px;
     }
 
+    .product-content h3 {
+        font-size: 1.3rem;
+    }
+
+    .rating img {
+        width: 0.7rem;
+        height: 0.7rem;
+    }
+
+    .rating p {
+        font-size: 0.9rem;
+    }
+
+    .product-content .price {
+        font-size: 1rem;
+    }
+
     .burger-image {
         left: -1.5rem;
         width: 23rem;
@@ -607,6 +624,18 @@
         height: 130px;
     }
 
+    .menu-item-content h3 {
+        font-size: 1.1rem;
+    }
+
+    .menu-item-content p {
+        font-size: 0.85rem;
+    }
+
+    .menu-item-content .price {
+        font-size: 0.95rem;
+    }
+
     .product-item {
         max-width: 260px;
         height: 270px;
@@ -614,6 +643,23 @@
 
     .product-item img {
         height: 180px;
+    }
+
+    .product-content h3 {
+        font-size: 1.2rem;
+    }
+
+    .rating img {
+        width: 0.7rem;
+        height: 0.7rem;
+    }
+
+    .rating p {
+        font-size: 0.9rem;
+    }
+
+    .product-content .price {
+        font-size: 1rem;
     }
 
     .burger-image {
@@ -665,11 +711,32 @@
 
     .menu-item {
         max-width: 140px;
-        height: 230px;
+        height: 200px;
     }
 
     .menu-item-image {
         height: 120px;
+    }
+
+    .menu-item-content h3 {
+        font-size: 1rem;
+    }
+
+    .menu-item-content p {
+        font-size: 0.75rem;
+    }
+
+    .menu-item-content .price {
+        font-size: 0.85rem;
+    }
+
+
+    .info-item span:nth-child(2) {
+        font-size: 1rem;
+    }
+
+    .info-item span:nth-child(3) {
+        font-size: 0.7rem;
     }
 
     .product-grid {
@@ -677,7 +744,7 @@
     }
 
     .products-container {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
     }
 
@@ -690,13 +757,59 @@
         height: 170px;
     }
 
+    .product-content h3 {
+        font-size: 1rem;
+    }
+
+    .rating img {
+        width: 0.6rem;
+        height: 0.6rem;
+    }
+
+    .rating p {
+        font-size: 0.9rem;
+    }
+
+    .product-content .price {
+        font-size: 0.9rem;
+    }
+
+    .add-to-cart {
+        padding: 0.7rem 1.4rem;
+        border-radius: 20px;
+        font-size: 0.6rem;
+    }
+
     .services-grid {
-        grid-template-columns: 1fr;
         gap: 1rem;
     }
 
     .service-item {
-        max-width: 100%;
+        padding: 1.2rem;
+        max-width: 13rem;
+    }
+
+    .service-icon {
+        width: 3.3rem;
+        height: 3.3rem;
+        margin: 0.3rem auto 0.3rem;
+        font-size: 1.5rem;
+    }
+
+    .service-icon img {
+        width: 50%;
+        height: 50%;
+    }
+
+    .service-item h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+        padding-bottom: 0.5rem;
+        padding-top: 0.5rem;
+    }
+
+    .service-item p {
+        font-size: 0.75rem;
     }
 
     .steps-container {
@@ -717,85 +830,149 @@
 /* Màn hình dưới 480px */
 @media (max-width: 480px) {
     .hero {
-        padding: 1.5rem;
+        padding: 2rem;
+    }
+
+    .hero-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .hero-content {
+        text-align: center;
     }
 
     .hero-content h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
 
     .hero-content p {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
+        max-width: 100%;
     }
 
     .hero-button {
-        padding: 0.7rem 1.2rem;
-        font-size: 0.75rem;
+        padding: 0.8rem 1.5rem;
+        font-size: 0.8rem;
+    }
+
+    .hero-menu {
+        width: 100%;
+        margin-left: 0;
     }
 
     .menu-grid {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+        justify-items: center;
     }
 
     .menu-item {
-        max-width: 200px;
-        height: 250px;
+        max-width: 140px;
+        height: 230px;
     }
 
     .menu-item-image {
-        height: 140px;
+        height: 120px;
+    }
+
+    .info-item span:nth-child(2) {
+        font-size: 0.9rem;
+    }
+
+    .info-item span:nth-child(3) {
+        font-size: 0.6rem;
+    }
+
+
+    .product-grid {
+        padding: 0 1rem;
     }
 
     .products-container {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
     }
 
     .product-item {
         max-width: 100%;
-        height: 250px;
+        height: 260px;
     }
 
     .product-item img {
-        height: 180px;
+        height: 170px;
     }
 
-    .info-bar {
-        flex-direction: column;
-        gap: 1.5rem;
+    .product-content h3 {
+        font-size: 0.9rem;
+    }
+
+    .rating img {
+        width: 0.5rem;
+        height: 0.5rem;
+    }
+
+    .rating p {
+        font-size: 0.7rem;
+    }
+
+    .product-content .price {
+        font-size: 0.8rem;
+    }
+
+    .add-to-cart {
+        padding: 0.5rem 1.2rem;
+        border-radius: 20px;
+        font-size: 0.55rem;
+    }
+
+    .services-grid {
+        gap: 1rem;
+    }
+
+    .service-item {
         padding: 1rem;
-        max-width: 90%;
+        max-width: 11.5rem;
     }
 
-    .info-item img {
-        width: 1.2rem;
-        height: 1.2rem;
+    .service-icon {
+        width: 3rem;
+        height: 3rem;
+        margin: 0.1rem auto 0.1rem;
     }
 
-    .info-item span:nth-child(2) {
+    .service-icon img {
+        width: 50%;
+        height: 50%;
+    }
+
+    .service-item h3 {
         font-size: 0.85rem;
+        margin-bottom: 0.1rem;
+        padding-bottom: 0.1rem;
+        padding-top: 0.1rem;
     }
 
-    .info-item span:nth-child(3) {
-        font-size: 0.65rem;
+    .service-item p {
+        font-size: 0.7rem;
     }
 
-    .newsletter-container {
+    .steps-container {
         flex-direction: column;
-        padding: 4rem 0.5rem 1rem 0.5rem;
-        margin: 1rem;
+        gap: 40px;
+    }
+
+    .step {
+        width: 100%;
     }
 
     .burger-image {
-        width: 10rem;
-        top: -1.5rem;
-    }
-
-    .text-form-container h2 {
-        font-size: 1.2rem;
+        left: 0;
+        width: 18rem;
     }
 }
+
 
 /* Loading và Error Message */
 .loading {
