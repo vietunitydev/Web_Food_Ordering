@@ -13,7 +13,7 @@ import delivery from '../../assets/delivery-2.png';
 import computer from '../../assets/computer.png';
 import fired_chicken from '../../assets/fired-chicken.png';
 import package1 from '../../assets/package.png';
-import burger from '../../assets/burger1.png';
+// import burger from '../../assets/burger1.png';
 import star from '../../assets/star.png';
 
 interface MenuItem {
@@ -275,16 +275,16 @@ const Home = () => {
                 </div>
             </div>
 
-            <div className="newsletter-container">
-                <img src={burger} alt="Burger" className="burger-image" />
-                <div className="text-form-container">
-                    <h2>Đăng ký nhận bản tin của chúng tôi</h2>
-                    <form className="email-form">
-                        <input type="email" placeholder="Type your email..." />
-                        <button type="submit">SUBSCRIBE</button>
-                    </form>
-                </div>
-            </div>
+            {/*<div className="newsletter-container">*/}
+            {/*    <img src={burger} alt="Burger" className="burger-image" />*/}
+            {/*    <div className="text-form-container">*/}
+            {/*        <h2>Đăng ký nhận bản tin của chúng tôi</h2>*/}
+            {/*        <form className="email-form">*/}
+            {/*            <input type="email" placeholder="Type your email..." />*/}
+            {/*            <button type="submit">SUBSCRIBE</button>*/}
+            {/*        </form>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
         </div>
     );
 };

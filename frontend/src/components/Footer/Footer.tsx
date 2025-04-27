@@ -3,7 +3,6 @@ import './Footer.css';
 
 import insta from '../../assets/instagram.png';
 import facebook from '../../assets/facebook.png';
-import twitter from '../../assets/twitter.png';
 
 const Footer: React.FC = () => {
     return (
@@ -15,9 +14,8 @@ const Footer: React.FC = () => {
                         Đặt đồ ăn nhanh chóng và tiện lợi cùng chúng tôi!
                     </p>
                     <div className= "social-icons">
-                        <a href="#" aria-label="Facebook"><img src={insta} alt="insta"/></a>
-                        <a href="" aria-label="Twitter"><img src={facebook} alt="facebook"/></a>
-                        <a href="" aria-label="Instagram"><img src={twitter} alt="twitter"/></a>
+                        <a href="https://www.instagram.com/doanviet.027/" aria-label="Insta"><img src={insta} alt="insta"/></a>
+                        <a href="https://www.facebook.com/doanviet.027/" aria-label="Facebook"><img src={facebook} alt="facebook"/></a>
                     </div>
                 </div>
                 <div className="footer-section">
@@ -27,11 +25,10 @@ const Footer: React.FC = () => {
                 </div>
                 <div className="footer-section">
                     <h3>Liên kết người dùng</h3>
-                    <p>Về chúng tôi</p>
-                    <p>Liên hệ với chúng tôi</p>
-                    <p>Giao hàng</p>
-                    <p>Thanh toán</p>
-                    <p>Chính sách</p>
+                    <a href="https://www.instagram.com/doanviet.027/" aria-label="Insta">Về chúng tôi</a>
+                    <a href="https://www.instagram.com/doanviet.027/" aria-label="Insta">Giao hàng</a>
+                    <a href="https://www.instagram.com/doanviet.027/" aria-label="Insta">Thanh toán</a>
+                    <a href="https://www.instagram.com/doanviet.027/" aria-label="Insta">Chính sách</a>
                 </div>
                 <div className="footer-section">
                     <h3>Thông tin liên hệ</h3>
