@@ -89,6 +89,8 @@ exports.getOrders = async (req, res) => {
             createdAtTo,
         } = req.query;
 
+        // console.log(createdAtFrom);
+
         let query = {};
 
         if (id) {

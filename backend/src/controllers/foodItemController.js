@@ -4,6 +4,7 @@ const cloudinary = require('cloudinary').v2;
 exports.validateFoodInfoBeforeUpload = async (req, res, next) => {
     const { title, description, price, type } = req.body;
     if (!title || !description || !price || !type || !req.file) {
+        console.log(title, description, price, type, req.file);
         return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
     }
 
@@ -12,7 +13,13 @@ exports.validateFoodInfoBeforeUpload = async (req, res, next) => {
 
 exports.createFoodItem = async (req, res) => {
     try {
+        console.log("create");
         const { title, description, price, type } = req.body;
+
+        if (!title || !description || !price || !type || !req.file) {
+            console.log(title, description, price, type, req.file);
+            return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
+        }
 
         const imageURL = req.file.path;
 
@@ -181,14 +188,18 @@ exports.getAllFoodItems = async (req, res) => {
     try {
         const { limit } = req.query;
 
-        let options = {};
 
         if (limit) {
             options.limit = parseInt(limit);
         }
-
+        let query = {};
         const foodItems = await FoodItem.find(options);
-        res.status(200).json(foodItems);
+        const totalItems = await FoodItem.countDocuments();
+
+        res.status(200).json({
+            foodItem: foodItems,
+            total : totalItems
+        });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error });
     }
@@ -217,6 +228,7 @@ exports.updateFoodItem = async (req, res) => {
 // Xóa ảnh trên Cloudinary khi xóa sản phẩm
 exports.deleteFoodItem = async (req, res) => {
     try {
+        console.log("delete")
         const item = await FoodItem.findById(req.params.id);
         if (!item) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });

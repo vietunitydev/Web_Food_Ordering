@@ -235,7 +235,7 @@ const AdminOrdersPage: React.FC = () => {
                                         </td>
                                         <td>
                                             <button onClick={() => toggleOrderDetails(order._id)} className="details-btn">
-                                                {expandedOrderId === order._id ? 'Ẩn chi tiết' : 'Xem chi tiết'}
+                                                {expandedOrderId === order._id ? 'Ẩn chi tiết' : 'View detail'}
                                             </button>
                                         </td>
                                     </tr>

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { createFoodItem, getFoodItems, updateFoodItem, deleteFoodItem, getAllFoodItems, getFoodItemsHome,
-    getFoodItemsForAdmin, validateFoodInfoBeforeUpload
+    getFoodItemsForAdmin
 } = require('../controllers/foodItemController');
 const multer = require('multer');
 const { authMiddleware, adminMiddleware } = require('../middleware/authMiddleWare');
@@ -19,14 +19,14 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'food-app', // tên thư mục lưu trên Cloudinary
-        allowed_formats: ['jpg', 'jpeg', 'png', 'gif'],
+        allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
         transformation: [{ width: 500, height: 500, crop: 'limit' }]
     }
 });
 
 const upload = multer({ storage });
 
-router.post('/', authMiddleware, adminMiddleware, validateFoodInfoBeforeUpload, upload.single('image'), createFoodItem);
+router.post('/', authMiddleware, adminMiddleware, upload.single('image'), createFoodItem);
 router.get('/', getFoodItems);
 router.get('/get_home_product', getFoodItemsHome);
 
