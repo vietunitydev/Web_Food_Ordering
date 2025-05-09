@@ -15,6 +15,7 @@ import fired_chicken from '../../assets/fired-chicken.png';
 import package1 from '../../assets/package.png';
 // import burger from '../../assets/burger1.png';
 import star from '../../assets/star.png';
+import {toast} from "react-toastify";
 
 interface MenuItem {
     id: string;
@@ -97,12 +98,12 @@ const Home = () => {
 
     const addToCart = async (item: FoodItem) => {
         if (!state.token) {
-            alert('Vui lòng đăng nhập để thêm vào giỏ hàng!');
+            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng!');
             navigate('/login');
             return;
         }
         if (state.role !== 'user') {
-            alert('Chỉ tài khoản người dùng mới có thể thêm vào giỏ hàng!');
+            toast.error('Chỉ tài khoản người dùng mới có thể thêm vào giỏ hàng!');
             return;
         }
 
@@ -117,10 +118,10 @@ const Home = () => {
                 payload: { id: item._id, name: item.title, price: item.price }
             });
             console.log('Thêm vào giỏ hàng thành công:', response.data);
-            // alert('Đã thêm vào giỏ hàng!');
+            toast.success('Đã thêm vào giỏ hàng!');
         } catch (error) {
             console.error('Lỗi khi thêm vào giỏ hàng:', error);
-            alert('Lỗi khi thêm vào giỏ hàng!');
+            toast.error('Lỗi khi thêm vào giỏ hàng!');
         }
     };
 

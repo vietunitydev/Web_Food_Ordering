@@ -4,6 +4,7 @@ import axios from 'axios';
 import './AddItemPage.css';
 import upload from '../../assets/upload.png';
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
+import {toast} from "react-toastify";
 
 const AddItemPage: React.FC = () => {
     const { state } = useAppContext();
@@ -39,7 +40,7 @@ const AddItemPage: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.title || !formData.description || !formData.type || !formData.price || !formData.image) {
-            alert('Vui lòng nhập đầy đủ thông tin sản phẩm.');
+            toast.error('Vui lòng nhập đầy đủ thông tin sản phẩm.');
             return;
         }
 
@@ -56,11 +57,11 @@ const AddItemPage: React.FC = () => {
             await axios.post(`${import.meta.env.VITE_API_URL}/api/foodItems`, data, {
                 headers: { Authorization: `Bearer ${state.token}` }
             });
-            alert('Sản phẩm đã được thêm thành công!');
+            toast.success('Sản phẩm đã được thêm thành công!');
             setFormData({ title: '', description: '', type: '', price: '', image: null });
             setImagePreview(null);
         } catch (error) {
-            alert('Lỗi khi thêm sản phẩm!');
+            toast.error('Lỗi khi thêm sản phẩm!');
             console.error(error);
         }
     };

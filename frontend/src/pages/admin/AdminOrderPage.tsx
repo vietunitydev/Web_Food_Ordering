@@ -4,6 +4,7 @@ import './AdminOrdersPage.css';
 import { OrderItem } from "../../shared/types.ts";
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
 import axios from "axios";
+import {toast} from "react-toastify";
 
 interface Pagination {
     currentPage: number;
@@ -86,10 +87,10 @@ const AdminOrdersPage: React.FC = () => {
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
             // Optionally show a success message
-            alert('Trạng thái đơn hàng đã được cập nhật!');
+            toast.success('Trạng thái đơn hàng đã được cập nhật!');
         } catch (error) {
             console.error('Error updating order status:', error);
-            alert('Lỗi khi cập nhật trạng thái đơn hàng!');
+            toast.error('Lỗi khi cập nhật trạng thái đơn hàng!');
         }
     };
 

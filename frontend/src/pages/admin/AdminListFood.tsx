@@ -3,6 +3,7 @@ import AdminLayout from './AdminLayout';
 import axios from 'axios';
 import './AdminListFood.css';
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
+import {toast} from "react-toastify";
 
 interface Item {
     _id: string;
@@ -75,10 +76,10 @@ const ListItemsPage: React.FC = () => {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 setItems((prevItems) => prevItems.filter((item) => item._id !== id));
-                alert('Sản phẩm đã được xóa!');
+                toast.success('Sản phẩm đã được xóa!');
             } catch (error) {
                 console.error('Lỗi khi xóa sản phẩm:', error);
-                alert('Lỗi khi xóa sản phẩm!');
+                toast.error('Lỗi khi xóa sản phẩm!');
             }
         }
     };
@@ -109,10 +110,10 @@ const ListItemsPage: React.FC = () => {
                 prevItems.map((item) => (item._id === id ? response.data : item))
             );
             setEditItemId(null);
-            alert('Sản phẩm đã được cập nhật!');
+            toast.success('Sản phẩm đã được cập nhật!');
         } catch (error) {
             console.error('Error updating food item:', error);
-            alert('Lỗi khi cập nhật sản phẩm!');
+            toast.error('Lỗi khi cập nhật sản phẩm!');
         }
     };
 

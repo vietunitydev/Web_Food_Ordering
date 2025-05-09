@@ -4,6 +4,7 @@ import { useAppContext, actions } from '../../components/AppContext/AppContext.t
 import axios from 'axios';
 import './FoodPage.css';
 import { FoodItem } from '../../shared/types.ts';
+import {toast} from "react-toastify";
 
 const FoodPage: React.FC = () => {
     const [items, setItems] = useState<FoodItem[]>([]);
@@ -58,12 +59,12 @@ const FoodPage: React.FC = () => {
 
     const addToCart = async (item: FoodItem) => {
         if (!state.token) {
-            alert('Vui lòng đăng nhập để thêm vào giỏ hàng!');
+            toast.error('Vui lòng đăng nhập để thêm vào giỏ hàng!');
             navigate('/login');
             return;
         }
         if (state.role !== 'user') {
-            alert('Chỉ tài khoản người dùng mới có thể thêm vào giỏ hàng!');
+            toast.error('Chỉ tài khoản người dùng mới có thể thêm vào giỏ hàng!');
             return;
         }
 
@@ -77,10 +78,11 @@ const FoodPage: React.FC = () => {
                 type: actions.ADD_TO_CART,
                 payload: { id: item._id, name: item.title, price: item.price },
             });
+            toast.success('Đã thêm vào giỏ hàng!');
             console.log('Thêm vào giỏ hàng thành công:', response.data);
         } catch (error) {
             console.error('Lỗi khi thêm vào giỏ hàng:', error);
-            alert('Lỗi khi thêm vào giỏ hàng!');
+            toast.error('Lỗi khi thêm vào giỏ hàng!');
         }
     };
 

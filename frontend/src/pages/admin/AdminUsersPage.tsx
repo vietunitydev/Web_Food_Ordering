@@ -4,6 +4,7 @@ import './AdminUsersPage.css';
 import { User } from "../../shared/types.ts";
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
 import axios from 'axios';
+import {toast} from "react-toastify";
 
 interface Pagination {
     currentPage: number;
@@ -88,7 +89,7 @@ const AdminUsersPage: React.FC = () => {
                 const updatedUsers = users.filter((user) => user._id !== userId);
                 setUsers(updatedUsers);
                 setError(null);
-                alert('Người dùng đã được xóa!');
+                toast.success('Người dùng đã được xóa!');
             } catch (err) {
                 console.error('Error deleting user:', err);
                 setError('Không thể xóa người dùng. Vui lòng thử lại.');

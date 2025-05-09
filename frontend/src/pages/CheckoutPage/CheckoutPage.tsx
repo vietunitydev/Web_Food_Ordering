@@ -4,6 +4,7 @@ import axios from 'axios';
 import './CheckoutPage.css';
 import { useAppContext, actions } from '../../components/AppContext/AppContext.tsx';
 import { loadStripe } from '@stripe/stripe-js';
+import {toast} from "react-toastify";
 
 const stripePromise = loadStripe('pk_test_51RD0ydRgiEpj183BNS1qmXIfvMGeHnDX8at8L6oHYi8spx00cttJZyaVuh17v70Cdg9lfq1h6M14vufdIWNWUKqS000qHhnhM5');
 
@@ -78,7 +79,7 @@ const CheckoutPage: React.FC = () => {
                     if (response.data.success) {
                         dispatch({ type: actions.CLEAR_CART });
                         dispatch({ type: actions.CLEAR_DISCOUNT });
-                        // alert('Đặt hàng thành công! Bạn có thể xem lịch sử đơn hàng ở trang "Order History".');
+                        toast.success('Đặt hàng thành công! Bạn có thể xem lịch sử đơn hàng ở trang "Order History".');
                         navigate('/order-history', { replace: true });
                     } else {
                         setErrorMessage('Thanh toán không thành công. Vui lòng thử lại.');

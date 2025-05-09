@@ -4,6 +4,7 @@ import axios from 'axios';
 import './ProfilePage.css';
 import { UserProfile } from "../../shared/types.ts";
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
+import {toast} from "react-toastify";
 
 const ProfilePage: React.FC = () => {
     const { state } = useAppContext();
@@ -81,7 +82,7 @@ const ProfilePage: React.FC = () => {
 
             setUser(updatedUser);
             setError('');
-            alert('Thông tin đã được cập nhật thành công!');
+            toast.success('Thông tin đã được cập nhật thành công!');
         } catch (err) {
             console.error('Error updating user:', err);
             setError('Không thể cập nhật thông tin. Vui lòng thử lại.');
@@ -118,7 +119,7 @@ const ProfilePage: React.FC = () => {
             setConfirmPassword('');
             setPasswordError('');
             setShowPasswordForm(false);
-            alert('Mật khẩu đã được thay đổi thành công!');
+            toast.success('Mật khẩu đã được thay đổi thành công!');
             localStorage.setItem('token', response.data.token);
         } catch (err: any) {
             console.error('Error changing password:', err);

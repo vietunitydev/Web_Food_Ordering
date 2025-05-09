@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './OrderHistoryPage.css';
+import {toast} from "react-toastify";
 
 interface OrderItem {
     foodItemId: {
@@ -37,7 +38,7 @@ const OrderHistoryPage: React.FC = () => {
             try {
                 const token = localStorage.getItem('token');
                 if (!token) {
-                    alert('Please log in to view order history.');
+                    toast.error('Vui lòng đăng nhập để xem lịch sử đơn hàng!');
                     navigate('/login');
                     return;
                 }

@@ -18,6 +18,9 @@ import ResetPasswordForm from './pages/login/ResetPasswordForm.tsx';
 import ForgotPassword from './pages/login/ForgotPassword.tsx';
 import AdminCouponsPage from './pages/admin/AdminCouponsPage.tsx';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 const ProtectedRoute: React.FC<{ children: JSX.Element; allowedRole: string }> = ({ children, allowedRole }) => {
     const { state } = useAppContext();
     if (state.isLoading) {
@@ -60,6 +63,19 @@ const App: React.FC = () => {
 
                     <Route path="/reset-password/:resettoken" element={<ResetPasswordForm />} />
                 </Routes>
+
+                <ToastContainer
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover={false}
+                    theme="light"
+                />
             </AppProvider>
         </Router>
     );

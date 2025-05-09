@@ -3,6 +3,7 @@ import AdminLayout from './AdminLayout';
 import axios from 'axios';
 import './AdminCouponsPage.css';
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
+import {toast} from "react-toastify";
 
 interface Coupon {
     _id: string;
@@ -109,7 +110,7 @@ const AdminCouponsPage: React.FC = () => {
                 status: 'active',
             });
             setShowCreateForm(false);
-            alert('Mã giảm giá đã được tạo!');
+            toast.success('Mã giảm giá đã được tạo!');
         } catch (err) {
             console.error('Error creating coupon:', err);
         }
@@ -122,7 +123,7 @@ const AdminCouponsPage: React.FC = () => {
                     headers: { Authorization: `Bearer ${state.token}` },
                 });
                 setCoupons(coupons.filter((coupon) => coupon._id !== id));
-                alert('Mã giảm giá đã được xóa!');
+                toast.success('Mã giảm giá đã được xóa!');
             } catch (err) {
                 console.error('Error deleting coupon:', err);
             }
@@ -153,10 +154,10 @@ const AdminCouponsPage: React.FC = () => {
             );
             setCoupons(updatedCoupons);
             setEditCouponId(null);
-            alert('Mã giảm giá đã được cập nhật!');
+            toast.success('Mã giảm giá đã được cập nhật!');
         } catch (error) {
             console.error('Error updating coupon:', error);
-            alert('Lỗi khi cập nhật mã giảm giá!');
+            toast.error('Lỗi khi cập nhật mã giảm giá!');
         }
     };
 

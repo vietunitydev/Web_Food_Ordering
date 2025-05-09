@@ -4,6 +4,7 @@ import { useAppContext, actions } from '../../components/AppContext/AppContext.t
 import axios from 'axios';
 import './CartPage.css';
 import { ContextCartItem } from '../../shared/types.ts';
+import {toast} from "react-toastify";
 
 const CartPage: React.FC = () => {
     const { state, dispatch } = useAppContext();
@@ -18,7 +19,7 @@ const CartPage: React.FC = () => {
     useEffect(() => {
         const fetchCart = async () => {
             if (state.role !== 'user') {
-                alert('Bạn không có quyền truy cập trang này.');
+                toast.error('Bạn không có quyền truy cập trang này.');
                 navigate('/login');
                 return;
             }
@@ -204,7 +205,7 @@ const CartPage: React.FC = () => {
                     payload: { discount: response.data.data.discountAmount, promoCode },
                 });
                 setCouponError(null);
-                alert(`Mã giảm giá "${promoCode}" đã được áp dụng! Giảm: $${response.data.data.discountAmount.toFixed(2)}`);
+                toast.success(`Mã giảm giá "${promoCode}" đã được áp dụng! Giảm: $${response.data.data.discountAmount.toFixed(2)}`);
                 setPromoCode('');
             } else {
                 setCouponError(response.data.message || 'Mã giảm giá không hợp lệ.');
@@ -234,7 +235,7 @@ const CartPage: React.FC = () => {
                     navigate('/checkout');
                 } catch (error) {
                     console.error('Lỗi khi lưu giỏ hàng:', error);
-                    alert('Có lỗi xảy ra khi lưu giỏ hàng. Vui lòng thử lại.');
+                    toast.error('Có lỗi xảy ra khi lưu giỏ hàng. Vui lòng thử lại.');
                 }
             } else {
                 navigate('/checkout');
@@ -247,7 +248,7 @@ const CartPage: React.FC = () => {
     const handleUpdateCart = () => {
         setIsLoading(true);
         updateCartOnServer().then(() => {
-            alert('Giỏ hàng đã được cập nhật!');
+            toast.success('Giỏ hàng đã được cập nhật!');
         });
     };
 
