@@ -40,7 +40,7 @@ const AddItemPage: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.title || !formData.description || !formData.type || !formData.price || !formData.image) {
+        if (!formData.title.trim() || !formData.description.trim() || !formData.type.trim() || !formData.price.trim() || !formData.image) {
             toast.error('Vui lòng nhập đầy đủ thông tin sản phẩm.');
             return;
         }
@@ -48,10 +48,10 @@ const AddItemPage: React.FC = () => {
         setIsSubmitting(true);
 
         const data = new FormData();
-        data.append('title', formData.title);
-        data.append('description', formData.description);
-        data.append('type', formData.type);
-        data.append('price', formData.price);
+        data.append('title', formData.title.trim());
+        data.append('description', formData.description.trim());
+        data.append('type', formData.type.trim());
+        data.append('price', formData.price.trim());
         data.append('image', formData.image);
 
         try {
@@ -59,7 +59,7 @@ const AddItemPage: React.FC = () => {
                 headers: { Authorization: `Bearer ${state.token}` },
             });
             toast.success('Sản phẩm đã được thêm thành công!');
-            setFormData({ title: '', description: '', type: '', price: '', image: null }); // Reset form
+            setFormData({ title: '', description: '', type: 'main', price: '', image: null });
             setImagePreview(null);
         } catch (error) {
             toast.error('Lỗi khi thêm sản phẩm!');
