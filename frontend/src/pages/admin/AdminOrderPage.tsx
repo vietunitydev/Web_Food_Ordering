@@ -280,23 +280,28 @@ const AdminOrdersPage: React.FC = () => {
                             </tbody>
                         </table>
 
-                        <div className="pagination-controls">
-                            <button
-                                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                disabled={pagination.currentPage === 1}
-                            >
-                                Previous
-                            </button>
-                            <span>
+                        {pagination.totalItems > 10 ? (
+                            <div className="pagination-controls">
+                                <button
+                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                    disabled={pagination.currentPage === 1}
+                                >
+                                    Trang trước
+                                </button>
+                                <span>
                                 Page {pagination.currentPage} of {pagination.totalPages}
                             </span>
-                            <button
-                                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                disabled={!pagination.hasMore}
-                            >
-                                Next
-                            </button>
-                        </div>
+                                <button
+                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                    disabled={!pagination.hasMore}
+                                >
+                                    Trang sau
+                                </button>
+                            </div>
+                        ) : (
+                            <p></p>
+                        )
+                        }
                     </>
                 )}
             </div>

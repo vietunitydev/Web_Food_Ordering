@@ -383,24 +383,28 @@ const ListItemsPage: React.FC = () => {
                             </tbody>
                         </table>
 
-                        {/* Pagination Controls */}
-                        <div className="pagination-controls">
-                            <button
-                                onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                disabled={pagination.currentPage === 1 || isLoading}
-                            >
-                                Trang trước
-                            </button>
-                            <span>
-                                Trang {pagination.currentPage} / {pagination.totalPages}
+                        {pagination.totalItems > 10 ? (
+                            <div className="pagination-controls">
+                                <button
+                                    onClick={() => handlePageChange(pagination.currentPage - 1)}
+                                    disabled={pagination.currentPage === 1}
+                                >
+                                    Trang trước
+                                </button>
+                                <span>
+                                Page {pagination.currentPage} of {pagination.totalPages}
                             </span>
-                            <button
-                                onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                disabled={!pagination.hasMore || isLoading}
-                            >
-                                Trang sau
-                            </button>
-                        </div>
+                                <button
+                                    onClick={() => handlePageChange(pagination.currentPage + 1)}
+                                    disabled={!pagination.hasMore}
+                                >
+                                    Trang sau
+                                </button>
+                            </div>
+                        ) : (
+                            <p></p>
+                        )
+                        }
                     </>
                 )}
             </div>
