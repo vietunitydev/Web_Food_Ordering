@@ -23,9 +23,9 @@ const CartPage: React.FC = () => {
 
         const numPrice = Number(price);
         if (numPrice >= 1000000) {
-            return `${(numPrice / 1000000).toFixed(1)}M`;
+            return `$${(numPrice / 1000000).toFixed(1)}M`;
         } else if (numPrice >= 1000) {
-            return `${(numPrice / 1000).toFixed(1)}K`;
+            return `$${(numPrice / 1000).toFixed(1)}K`;
         }
         return `$${numPrice.toFixed(2)}`;
     };

@@ -17,6 +17,7 @@ import AdminUsersPage from './pages/admin/AdminUsersPage.tsx';
 import ResetPasswordForm from './pages/login/ResetPasswordForm.tsx';
 import ForgotPassword from './pages/login/ForgotPassword.tsx';
 import AdminCouponsPage from './pages/admin/AdminCouponsPage.tsx';
+import UserLinkPage from './pages/UserLink/UserLinkPage.tsx';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -53,6 +54,9 @@ const App: React.FC = () => {
                         <Route path="/register" element={<RegisterForm />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                     </Route>
+
+                    <Route path="/user-link/:type" element={<UserLinkPage />} />
+
 
                     <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AddItemPage /></ProtectedRoute>} />
                     <Route path="/admin/add-item" element={<ProtectedRoute allowedRole="admin"><AddItemPage /></ProtectedRoute>} />
