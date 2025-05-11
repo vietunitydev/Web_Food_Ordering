@@ -185,6 +185,20 @@ exports.getFoodItemsForAdmin = async (req, res) => {
     }
 };
 
+exports.getFoodItemById = async (req, res) => {
+    try {
+        const foodItem = await FoodItem.findById(req.params.id);
+        if (!foodItem) {
+            return res.status(404).json({ message: 'Món ăn không tồn tại' });
+        }
+        res.status(200).json(foodItem);
+    } catch (error) {
+        console.error('Lỗi khi lấy thông tin món ăn:', error);
+        res.status(500).json({ message: 'Lỗi khi lấy thông tin món ăn' });
+    }
+};
+
+
 // Get all food items
 exports.getAllFoodItems = async (req, res) => {
     try {

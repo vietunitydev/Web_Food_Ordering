@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAppContext, actions } from '../../components/AppContext/AppContext.tsx';
 import axios from 'axios';
 import './FoodPage.css';
 import { FoodItem } from '../../shared/types.ts';
-import {toast} from "react-toastify";
+import { toast } from 'react-toastify';
 
 const FoodPage: React.FC = () => {
     const [items, setItems] = useState<FoodItem[]>([]);
@@ -14,6 +14,7 @@ const FoodPage: React.FC = () => {
         totalItems: 0,
         itemsPerPage: 20,
     });
+    const [loading, setLoading] = useState(true);
     const [searchParams, setSearchParams] = useSearchParams();
     const { state, dispatch } = useAppContext();
     const navigate = useNavigate();
@@ -37,6 +38,7 @@ const FoodPage: React.FC = () => {
 
     useEffect(() => {
         const fetchItems = async () => {
+            setLoading(true);
             try {
                 const params = new URLSearchParams({
                     page,
@@ -52,6 +54,9 @@ const FoodPage: React.FC = () => {
                 setPagination(response.data.pagination);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách sản phẩm:', error);
+                toast.error('Lỗi khi lấy danh sách món ăn!');
+            } finally {
+                setLoading(false);
             }
         };
         fetchItems();
@@ -95,6 +100,10 @@ const FoodPage: React.FC = () => {
         }
     };
 
+    if (loading) {
+        return <div className="food-page">Đang tải...</div>;
+    }
+
     return (
         <div className="food-page">
             <div className="food-header">
@@ -110,18 +119,25 @@ const FoodPage: React.FC = () => {
                 <div className="pizza-grid">
                     {items.map((item) => (
                         <div key={item._id} className="pizza-card">
-                            <img
-                                src={`${item.imageURL}`}
-                                alt={item.title}
-                                className="pizza-image"
-                            />
+                            <Link to={`/food/${item._id}`} className="pizza-image-link">
+                                <img
+                                    src={`${item.imageURL}`}
+                                    alt={item.title}
+                                    className="pizza-image"
+                                />
+
+                            </Link>
+                            {/*<Link to={`/food/${item._id}`} className="pizza-name-link">*/}
+                            {/*</Link>*/}
+
                             <h3 className="pizza-name">{item.title}</h3>
                             <p className="pizza-price">${item.price.toFixed(2)}</p>
                             <button
                                 onClick={() => addToCart(item)}
                                 className="add-to-cart-button"
+                                disabled={loading}
                             >
-                                Thêm vào giỏ hàng
+                                {loading ? 'Đang xử lý...' : 'Thêm vào giỏ hàng'}
                             </button>
                         </div>
                     ))}
@@ -132,24 +148,25 @@ const FoodPage: React.FC = () => {
                 <div className="pagination">
                     <button
                         onClick={() => handlePageChange(pagination.currentPage - 1)}
-                        disabled={pagination.currentPage === 1}
+                        disabled={pagination.currentPage === 1 || loading}
                     >
-                        {'<'}
+                        {loading ? 'Đang tải...' : '<'}
                     </button>
                     {Array.from({ length: pagination.totalPages }, (_, index) => (
                         <button
                             key={index + 1}
                             onClick={() => handlePageChange(index + 1)}
                             className={pagination.currentPage === index + 1 ? 'active' : ''}
+                            disabled={loading}
                         >
                             {index + 1}
                         </button>
                     ))}
                     <button
                         onClick={() => handlePageChange(pagination.currentPage + 1)}
-                        disabled={pagination.currentPage === pagination.totalPages}
+                        disabled={pagination.currentPage === pagination.totalPages || loading}
                     >
-                        {'>'}
+                        {loading ? 'Đang tải...' : '>'}
                     </button>
                 </div>
             )}

@@ -2,6 +2,7 @@ import React, { JSX } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './pages/Layout/Layout.tsx';
 import FoodPage from './pages/food/FoodPage.tsx';
+import FoodDetailPage from './pages/food/FoodDetailPage.tsx'; // Thêm import
 import CartPage from './pages/cart/CartPage.tsx';
 import LoginForm from './pages/login/LoginForm.tsx';
 import RegisterForm from './pages/login/RegisterForm.tsx';
@@ -45,6 +46,7 @@ const App: React.FC = () => {
                         <Route path="/" element={<Home />} />
                         <Route path="/home" element={<Home />} />
                         <Route path="/food" element={<FoodPage />} />
+                        <Route path="/food/:id" element={<FoodDetailPage />} />
                         <Route path="/cart" element={<ProtectedRoute allowedRole="user"><CartPage /></ProtectedRoute>} />
                         <Route path="/profile" element={<ProtectedRoute allowedRole="user"><ProfilePage /></ProtectedRoute>} />
                         <Route path="/checkout" element={<ProtectedRoute allowedRole="user"><CheckoutPage /></ProtectedRoute>} />
@@ -53,10 +55,8 @@ const App: React.FC = () => {
                         <Route path="/login" element={<LoginForm />} />
                         <Route path="/register" element={<RegisterForm />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
+                        <Route path="/user-link/:type" element={<UserLinkPage />} />
                     </Route>
-
-                    <Route path="/user-link/:type" element={<UserLinkPage />} />
-
 
                     <Route path="/admin" element={<ProtectedRoute allowedRole="admin"><AddItemPage /></ProtectedRoute>} />
                     <Route path="/admin/add-item" element={<ProtectedRoute allowedRole="admin"><AddItemPage /></ProtectedRoute>} />
