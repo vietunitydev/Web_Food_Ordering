@@ -159,16 +159,16 @@
 
 .cart-summary {
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
     gap: 20px;
 }
 
 .summary-left, .summary-right {
-    width: 50%;
+    width: 30%;
 }
 
 .summary-title {
-    font-size: 20px;
+    font-size: 15px;
     font-weight: bold;
     margin-bottom: 10px;
 }
@@ -202,8 +202,9 @@
 
 .promo-section {
     background-color: #f9f9f9;
-    padding: 20px;
+    padding: 15px;
     border-radius: 5px;
+    border-left: 4px solid #f39c12;
 }
 
 .promo-section p {
