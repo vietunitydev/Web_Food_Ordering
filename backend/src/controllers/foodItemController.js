@@ -228,14 +228,15 @@ exports.updateFoodItem = async (req, res) => {
 // Xóa ảnh trên Cloudinary khi xóa sản phẩm
 exports.deleteFoodItem = async (req, res) => {
     try {
-        console.log("delete")
+        // console.log("delete")
         const item = await FoodItem.findById(req.params.id);
         if (!item) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
         }
-
+        // console.log("has item")
         if (item.imageURL) {
             const publicId = item.imageURL.split('/').pop().split('.')[0];
+            // console.log("id " + publicId)
             await cloudinary.uploader.destroy(`food-app/${publicId}`);
         }
 
