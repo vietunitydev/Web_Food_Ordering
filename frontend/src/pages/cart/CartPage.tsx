@@ -16,14 +16,18 @@ const CartPage: React.FC = () => {
     const [isCartModified, setIsCartModified] = useState(false);
     const [inputValues, setInputValues] = useState<Record<string, string>>({});
 
-    // Hàm định dạng giá với hậu tố K/M
-    const formatPrice = (price: number): string => {
-        if (price >= 1000000) {
-            return `${(price / 1000000).toFixed(1)}M`;
-        } else if (price >= 1000) {
-            return `${(price / 1000).toFixed(1)}K`;
+    const formatPrice = (price: number | undefined | null): string => {
+        if (price === undefined || price === null || isNaN(price)) {
+            return '$0.00';
         }
-        return `$${price.toFixed(2)}`;
+
+        const numPrice = Number(price);
+        if (numPrice >= 1000000) {
+            return `${(numPrice / 1000000).toFixed(1)}M`;
+        } else if (numPrice >= 1000) {
+            return `${(numPrice / 1000).toFixed(1)}K`;
+        }
+        return `$${numPrice.toFixed(2)}`;
     };
 
     useEffect(() => {
@@ -42,7 +46,7 @@ const CartPage: React.FC = () => {
                 const cartItems = response.data.list.map((item: any) => ({
                     id: item.foodItemId._id,
                     name: item.foodItemId.title,
-                    price: item.foodItemId.price,
+                    price: Number(item.foodItemId.price) || 0, // Chuyển đổi price thành number, mặc định 0 nếu không hợp lệ
                     quantity: item.quantity,
                     imageURL: item.foodItemId.imageURL,
                 }));
@@ -197,7 +201,7 @@ const CartPage: React.FC = () => {
 
         setIsLoading(true);
         try {
-            const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const subtotal = state.cart.reduce((sum, item) => sum + (Number(item.price) || 0) * item.quantity, 0); // Xử lý price không hợp lệ
             const response = await axios.post(
                 `${import.meta.env.VITE_API_URL}/api/coupons/apply`,
                 { code: promoCode, orderTotal: subtotal },
@@ -207,10 +211,10 @@ const CartPage: React.FC = () => {
             if (response.data.success) {
                 dispatch({
                     type: actions.SET_DISCOUNT,
-                    payload: { discount: response.data.data.discountAmount, promoCode },
+                    payload: { discount: Number(response.data.data.discountAmount) || 0, promoCode },
                 });
                 setCouponError(null);
-                toast.success(`Mã giảm giá "${promoCode}" đã được áp dụng! Giảm: ${formatPrice(response.data.data.discountAmount)}`);
+                toast.success(`Mã giảm giá "${promoCode}" đã được áp dụng! Giảm: ${formatPrice(Number(response.data.data.discountAmount) || 0)}`);
                 setPromoCode('');
             } else {
                 setCouponError(response.data.message || 'Mã giảm giá không hợp lệ.');
@@ -254,9 +258,9 @@ const CartPage: React.FC = () => {
         updateCartOnServer();
     };
 
-    const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const deliveryFee = 2;
-    const total = subtotal + deliveryFee - state.discount;
+    const subtotal = state.cart.reduce((sum, item) => sum + (Number(item.price) || 0) * item.quantity, 0); // Xử lý price không hợp lệ
+    const deliveryFee = 2; // Đảm bảo là number
+    const total = subtotal + deliveryFee - (Number(state.discount) || 0); // Xử lý discount không hợp lệ
 
     if (state.role !== 'user') {
         return <div>Bạn không có quyền truy cập trang này.</div>;
@@ -299,7 +303,7 @@ const CartPage: React.FC = () => {
                                         />
                                     </td>
                                     <td className="col-name">{item.name}</td>
-                                    <td className="col-price">{formatPrice(item.price)}</td>
+                                    <td className="col-price">{formatPrice(Number(item.price) || 0)}</td>
                                     <td className="col-quantity">
                                         <div className="quantity-control">
                                             <input
@@ -329,7 +333,7 @@ const CartPage: React.FC = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="col-total">{formatPrice(item.price * item.quantity)}</td>
+                                    <td className="col-total">{formatPrice((Number(item.price) || 0) * item.quantity)}</td>
                                     <td className="col-remove">
                                         <button
                                             onClick={() => removeFromCart(item.id)}
@@ -377,7 +381,7 @@ const CartPage: React.FC = () => {
                             {state.discount > 0 && (
                                 <div className="summary-row">
                                     <span>Giảm giá ({state.appliedPromoCode})</span>
-                                    <span>-{formatPrice(state.discount)}</span>
+                                    <span>-{formatPrice(Number(state.discount) || 0)}</span>
                                 </div>
                             )}
                             <div className="summary-row total">
