@@ -2,6 +2,7 @@
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .admin-coupons-page h2 {
@@ -9,15 +10,25 @@
     margin-bottom: 20px;
     color: #333;
     font-size: 24px;
+    font-weight: bold;
 }
 
-.create-btn, .cancel-btn, .save-btn, .update-btn, .delete-btn {
-    padding: 10px 20px;
+.create-btn-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.create-btn, .cancel-btnn, .save-btnn, .update-btn, .delete-btn {
+    padding: 6px 12px;
     margin: 5px;
     border: none;
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
+    width: 80px;
+    text-align: center;
+    transition: opacity 0.3s ease;
 }
 
 .create-btn {
@@ -25,49 +36,33 @@
     color: white;
 }
 
-.cancel-btn {
-    background-color: #f44336;
+.cancel-btnn {
+    background-color: #6c757d;
     color: white;
-    width: 120px; /* Đảm bảo nút Hủy có cùng chiều rộng với nút Tạo mã */
 }
 
-.save-btn {
-    background-color: #008CBA;
+.save-btnn {
+    background-color: #28a745;
     color: white;
 }
 
 .update-btn {
-    background-color: #4CAF50;
+    background-color: #007bff;
     color: white;
 }
 
 .delete-btn {
-    background-color: #f44336;
+    background-color: #e74c3c;
     color: white;
 }
 
-.create-btn:hover, .cancel-btn:hover, .save-btn:hover, .update-btn:hover, .delete-btn:hover {
+.create-btn:hover, .cancel-btnn:hover, .save-btnn:hover, .update-btn:hover, .delete-btn:hover {
     opacity: 0.8;
 }
 
-.create-btn-container{
-    align-content: center;
-}
-
-.search-input[type="text"] {
-    width: 200px;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-}
-
-.form-group input[type="text"] {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
+.create-btn:disabled, .cancel-btnn:disabled, .save-btnn:disabled, .update-btn:disabled, .delete-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 /* Form tạo mã giảm giá */
@@ -83,6 +78,7 @@
     margin-top: 0;
     color: #333;
     text-align: center;
+    font-size: 20px;
 }
 
 .form-group {
@@ -101,6 +97,12 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
+    font-size: 14px;
+}
+
+.form-group input:disabled, .form-group select:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
 }
 
 /* Nút Tạo mã và Hủy trên cùng một dòng */
@@ -117,6 +119,7 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
+    justify-content: center;
 }
 
 .search-group {
@@ -134,7 +137,12 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
-    width: 200px;
+    width: 150px;
+}
+
+.search-input:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
 }
 
 /* Bảng danh sách mã giảm giá */
@@ -142,17 +150,26 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .coupons-table th, .coupons-table td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #e0e0e0;
 }
 
 .coupons-table th {
-    background-color: #f4f4f4;
-    font-weight: bold;
+    background-color: #f1f1f1;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.coupons-table td {
+    color: #666;
+    vertical-align: middle;
 }
 
 .coupons-table tr:nth-child(even) {
@@ -171,16 +188,26 @@
     box-sizing: border-box;
 }
 
-/* Thông báo lỗi */
-.error-message, .no-coupons {
-    color: #f44336;
-    text-align: center;
-    margin-top: 20px;
+.coupons-table input:disabled, .coupons-table select:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
 }
 
-.loading {
-    text-align: center;
+/* Actions */
+.actions {
+    white-space: nowrap;
+    display: flex;
+    gap: 5px;
+}
+
+/* Thông báo lỗi */
+.no-coupons {
+    font-size: 16px;
     color: #666;
+    text-align: center;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
 }
 
 .pagination-controls {
@@ -207,4 +234,47 @@
 
 .pagination-controls span {
     font-size: 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-coupons-page {
+        padding: 10px;
+    }
+
+    .admin-coupons-page h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .search-form {
+        gap: 5px;
+    }
+
+    .search-input {
+        width: 120px;
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .coupons-table th,
+    .coupons-table td {
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .create-btn, .cancel-btnn, .save-btnn, .update-btn, .delete-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+        width: 60px;
+    }
+
+    .actions {
+        gap: 3px;
+    }
+
+    .no-coupons {
+        font-size: 14px;
+        padding: 15px;
+    }
 }
