@@ -191,7 +191,7 @@ const AdminOrdersPage: React.FC = () => {
                         className="search-input"
                     >
                         <option value="">Tất cả phương thức</option>
-                        <option value="Cash">Tiền mặt</option>
+                        {/*<option value="Cash">Tiền mặt</option>*/}
                         <option value="Stripe">Stripe</option>
                     </select>
                 </div>
