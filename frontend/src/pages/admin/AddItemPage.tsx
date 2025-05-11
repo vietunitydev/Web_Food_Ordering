@@ -4,7 +4,7 @@ import axios from 'axios';
 import './AddItemPage.css';
 import upload from '../../assets/upload.png';
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const AddItemPage: React.FC = () => {
     const { state } = useAppContext();
@@ -16,6 +16,7 @@ const AddItemPage: React.FC = () => {
         image: null as File | null,
     });
     const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -44,6 +45,8 @@ const AddItemPage: React.FC = () => {
             return;
         }
 
+        setIsSubmitting(true);
+
         const data = new FormData();
         data.append('title', formData.title);
         data.append('description', formData.description);
@@ -51,18 +54,18 @@ const AddItemPage: React.FC = () => {
         data.append('price', formData.price);
         data.append('image', formData.image);
 
-        console.log(formData);
-
         try {
             await axios.post(`${import.meta.env.VITE_API_URL}/api/foodItems`, data, {
-                headers: { Authorization: `Bearer ${state.token}` }
+                headers: { Authorization: `Bearer ${state.token}` },
             });
             toast.success('Sản phẩm đã được thêm thành công!');
-            setFormData({ title: '', description: '', type: '', price: '', image: null });
+            setFormData({ title: '', description: '', type: '', price: '', image: null }); // Reset form
             setImagePreview(null);
         } catch (error) {
             toast.error('Lỗi khi thêm sản phẩm!');
             console.error(error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -137,7 +140,13 @@ const AddItemPage: React.FC = () => {
                             />
                         </div>
                     </div>
-                    <button type="submit" className="add-btn">Thêm sản phẩm</button>
+                    <button
+                        type="submit"
+                        className="add-btn"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Đang xử lý...' : 'Thêm sản phẩm'}
+                    </button>
                 </form>
             </div>
         </AdminLayout>
