@@ -92,7 +92,7 @@ const FoodDetailPage: React.FC = () => {
                 </div>
                 <div className="food-info">
                     <h2>{foodItem.title}</h2>
-                    <p className="description">{foodItem.description}</p>
+                    <p className="description">Mô tả: {foodItem.description}</p>
                     <p className="price">Giá: ${foodItem.price}</p>
                     {/*<p className="type">Loại: {foodItem.type}</p>*/}
                     <p className="rating">Đánh giá: {foodItem.rating} / 5</p>
