@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {Link, useNavigate} from 'react-router-dom';
 import { useAppContext, actions } from '../../components/AppContext/AppContext.tsx';
 import axios from 'axios';
 import './CartPage.css';
@@ -295,13 +295,15 @@ const CartPage: React.FC = () => {
                             <tbody>
                             {state.cart.map((item: ContextCartItem) => (
                                 <tr key={item.id}>
-                                    <td className="col-image">
-                                        <img
-                                            src={`${item.imageURL}`}
-                                            alt={item.name}
-                                            className="cart-item-image"
-                                        />
-                                    </td>
+                                    <Link to={`/food/${item.id}`} className="pizza-image-link">
+                                        <td className="col-image">
+                                            <img
+                                                src={`${item.imageURL}`}
+                                                alt={item.name}
+                                                className="cart-item-image"
+                                            />
+                                        </td>
+                                    </Link>
                                     <td className="col-name">{item.name}</td>
                                     <td className="col-price">{formatPrice(Number(item.price) || 0)}</td>
                                     <td className="col-quantity">
