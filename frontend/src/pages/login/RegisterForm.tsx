@@ -129,10 +129,10 @@ const RegisterForm: React.FC = () => {
             </button>
             <p className="policy-text">
               Bằng cách đăng nhập hoặc đăng ký, bạn đồng ý với{' '}
-              <a href="#">Chính sách của EATNOW</a>.
+              <a href="#" className="custom-link">Chính sách của EATNOW</a>.
             </p>
             <p>
-              Đã có tài khoản? <Link to="/login">Đăng Nhập</Link>
+              Đã có tài khoản? <Link to="/login" className="custom-link">Đăng Nhập</Link>
             </p>
           </form>
         </div>

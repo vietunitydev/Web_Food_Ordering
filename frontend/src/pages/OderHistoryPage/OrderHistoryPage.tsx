@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './OrderHistoryPage.css';
-import {toast} from "react-toastify";
+import { toast } from 'react-toastify';
 
 interface OrderItem {
     foodItemId: {
@@ -33,6 +33,14 @@ const OrderHistoryPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
+    const statusTranslations: { [key: string]: string } = {
+        pending: 'Chờ xử lý',
+        processing: 'Đang xử lý',
+        shipped: 'Đang giao',
+        delivered: 'Hoàn thành',
+        cancelled: 'Đã hủy',
+    };
+
     useEffect(() => {
         const fetchOrderHistory = async () => {
             try {
@@ -48,8 +56,6 @@ const OrderHistoryPage: React.FC = () => {
                 });
 
                 const fetchedOrders: Order[] = response.data.orders;
-
-
                 setOrders(fetchedOrders);
             } catch (err) {
                 if (axios.isAxiosError(err)) {
@@ -110,7 +116,7 @@ const OrderHistoryPage: React.FC = () => {
                                             order.status === 'pending' ? 'processing' : 'completed'
                                         }`}
                                     >
-                                        {order.status}
+                                        {statusTranslations[order.status] || order.status}
                                     </span>
                                     <button
                                         className="toggle-details-btn"

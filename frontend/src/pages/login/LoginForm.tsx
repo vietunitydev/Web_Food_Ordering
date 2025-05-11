@@ -80,19 +80,20 @@ const LoginForm: React.FC = () => {
                     </div>
                     <div className="options">
                         <label>
-                            <input type="checkbox" /> Lưu thông tin đăng nhập
+                            {/*<input type="checkbox" /> Lưu thông tin đăng nhập*/}
+                            <p> </p>
                         </label>
-                        <Link to="/forgot-password">Quên mật khẩu?</Link>
+                        <Link to="/forgot-password" className="custom-link">Quên mật khẩu?</Link>
                     </div>
                     <button type="submit" className="login-button" disabled={loading}>
                         {loading ? 'Đang xử lý...' : 'Đăng Nhập'}
                     </button>
                     <p className="policy-text">
                         Bằng cách đăng nhập hoặc đăng ký, bạn đồng ý với{' '}
-                        <a href="#">Chính sách của EATNOW</a>.
+                        <a href="#" className="custom-link">Chính sách của EATNOW</a>.
                     </p>
                     <p>
-                        Chưa có tài khoản? <Link to="/register">Đăng Ký</Link>
+                        Chưa có tài khoản? <Link to="/register" className="custom-link">Đăng Ký</Link>
                     </p>
                 </form>
             </div>

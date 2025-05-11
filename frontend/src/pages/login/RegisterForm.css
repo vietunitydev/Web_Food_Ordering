@@ -66,7 +66,18 @@
     margin-bottom: 15px;
 }
 
-/* Responsive Design */
+.custom-link {
+    text-decoration: none;
+    color: #3498db;
+    transition: color 0.3s ease;
+}
+
+.custom-link:hover {
+    text-decoration: underline;
+    color: #2980b9;
+}
+
+    /* Responsive Design */
 @media (max-width: 480px) {
     .register-card {
         padding: 20px;
