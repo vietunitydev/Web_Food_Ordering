@@ -75,7 +75,7 @@ const ProfilePage: React.FC = () => {
 
         try {
             await axios.put(
-                `$${import.meta.env.VITE_API_URL}/api/users/update`,
+                `${import.meta.env.VITE_API_URL}/api/users/update`,
                 updatedUser,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );

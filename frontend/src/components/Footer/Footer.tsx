@@ -32,8 +32,8 @@ const Footer: React.FC = () => {
                 </div>
                 <div className="footer-section">
                     <h3>Thông tin liên hệ</h3>
-                    <p>100 Nguyen Xien</p>
-                    <p>Thanh Xuan, Ha Noi</p>
+                    <p>100 Nguyễn Xiển</p>
+                    <p>Thanh Xuân, Hà Nội</p>
                     <p>+0123 456 7891</p>
                     <div className="email-input">
                         <input type="email" placeholder="Nhập email của bạn..." />
