@@ -94,11 +94,9 @@ const FoodDetailPage: React.FC = () => {
                     <h2>{foodItem.title}</h2>
                     <p className="description">Mô tả: {foodItem.description}</p>
                     <p className="price">Giá: ${foodItem.price}</p>
-                    {/*<p className="type">Loại: {foodItem.type}</p>*/}
                     <p className="rating">Đánh giá: {foodItem.rating} / 5</p>
                     {foodItem.isFeature && <p className="feature">Món ăn nổi bật</p>}
                     <div className="buttons">
-                        {/*<Link to="/food" className="back-btn">Quay về</Link>*/}
                         <button onClick={addToCart} className="add-to-cart-btn">
                             Thêm vào giỏ hàng
                         </button>
