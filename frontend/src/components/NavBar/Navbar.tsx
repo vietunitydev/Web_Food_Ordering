@@ -25,6 +25,9 @@ const Navbar: React.FC = () => {
         navigate(`/food?search=${searchTerm}`);
     };
 
+    // Hiển thị số lượng trên giỏ hàng, tối đa 99 hoặc 99+
+    const displayCartCount = totalItems > 99 ? '99+' : totalItems;
+
     return (
         <nav className="navbar">
             <div className="logo">
@@ -59,7 +62,7 @@ const Navbar: React.FC = () => {
                             <div className="cart-icon">
                                 <Link to="/cart">
                                     <img src={cart_icon} alt="cart_icon" />
-                                    <span className="cart-badge">{totalItems}</span>
+                                    <span className="cart-badge">{displayCartCount}</span>
                                 </Link>
                             </div>
                         </>

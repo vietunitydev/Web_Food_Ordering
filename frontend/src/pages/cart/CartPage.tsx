@@ -4,17 +4,27 @@ import { useAppContext, actions } from '../../components/AppContext/AppContext.t
 import axios from 'axios';
 import './CartPage.css';
 import { ContextCartItem } from '../../shared/types.ts';
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 const CartPage: React.FC = () => {
     const { state, dispatch } = useAppContext();
     const [promoCode, setPromoCode] = useState('');
     const [couponError, setCouponError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [updatingItemId, setUpdatingItemId] = useState<string | null>(null);
     const navigate = useNavigate();
     const [serverCart, setServerCart] = useState<ContextCartItem[]>([]);
     const [isCartModified, setIsCartModified] = useState(false);
+    const [inputValues, setInputValues] = useState<Record<string, string>>({});
+
+    // Hàm định dạng giá với hậu tố K/M
+    const formatPrice = (price: number): string => {
+        if (price >= 1000000) {
+            return `${(price / 1000000).toFixed(1)}M`;
+        } else if (price >= 1000) {
+            return `${(price / 1000).toFixed(1)}K`;
+        }
+        return `$${price.toFixed(2)}`;
+    };
 
     useEffect(() => {
         const fetchCart = async () => {
@@ -94,30 +104,38 @@ const CartPage: React.FC = () => {
         return Math.max(1, parsedValue);
     };
 
-    const updateQuantityLocally = async (id: string, newQuantity: number | string) => {
+    const updateQuantityLocally = (id: string, newQuantity: number | string) => {
         const validatedQuantity = typeof newQuantity === 'string'
             ? validateQuantity(newQuantity)
             : newQuantity;
 
         if (validatedQuantity <= 0) {
-            const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?");
-            if (confirmDelete) {
-                await removeFromCartLocally(id);
-            }
+            removeFromCart(id);
         } else {
             dispatch({ type: actions.UPDATE_QUANTITY, payload: { id, quantity: validatedQuantity } });
+            setInputValues({ ...inputValues, [id]: validatedQuantity.toString() });
         }
     };
 
-    const removeFromCartLocally = async (id: string) => {
-        setUpdatingItemId(id);
-        setIsLoading(true);
+    const removeFromCart = async (id: string) => {
+        const confirmDelete = window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?");
+        if (!confirmDelete) return;
 
+        setIsLoading(true);
         try {
+            await axios.delete(
+                `${import.meta.env.VITE_API_URL}/api/carts/remove/${id}`,
+                { headers: { Authorization: `Bearer ${state.token}` } }
+            );
             dispatch({ type: actions.REMOVE_FROM_CART, payload: { id } });
-            await updateCartOnServer();
+            setServerCart(serverCart.filter(item => item.id !== id));
+            setIsCartModified(false);
+            toast.success('Đã xóa sản phẩm khỏi giỏ hàng!');
+        } catch (error) {
+            console.error('Lỗi khi xóa sản phẩm:', error);
+            setCouponError('Lỗi khi xóa sản phẩm.');
+            toast.error('Có lỗi khi xóa sản phẩm.');
         } finally {
-            setUpdatingItemId(null);
             setIsLoading(false);
         }
     };
@@ -125,30 +143,26 @@ const CartPage: React.FC = () => {
     const updateCartOnServer = async () => {
         setIsLoading(true);
         try {
-            for (const item of state.cart) {
-                await axios.put(
-                    `${import.meta.env.VITE_API_URL}/api/carts/update`,
-                    { foodItemId: item.id, quantity: item.quantity },
-                    { headers: { Authorization: `Bearer ${state.token}` } }
-                );
-            }
+            await axios.put(
+                `${import.meta.env.VITE_API_URL}/api/carts/update-all`,
+                { items: state.cart.map(item => ({ foodItemId: item.id, quantity: item.quantity })) },
+                { headers: { Authorization: `Bearer ${state.token}` } }
+            );
             setServerCart(JSON.parse(JSON.stringify(state.cart)));
             setIsCartModified(false);
+            toast.success('Giỏ hàng đã được cập nhật!');
         } catch (error) {
             console.error('Lỗi khi cập nhật giỏ hàng:', error);
             setCouponError('Lỗi khi cập nhật giỏ hàng.');
+            toast.error('Có lỗi khi cập nhật giỏ hàng.');
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Lưu trữ giá trị đang nhập cho mỗi input
-    const [inputValues, setInputValues] = useState<Record<string, string>>({});
-
     const handleQuantityInputChange = (id: string, value: string) => {
         if (/^[0-9]*$/.test(value)) {
-            setInputValues({...inputValues, [id]: value});
-
+            setInputValues({ ...inputValues, [id]: value });
             if (value !== '') {
                 const numValue = parseInt(value, 10);
                 if (!isNaN(numValue)) {
@@ -160,23 +174,14 @@ const CartPage: React.FC = () => {
 
     const handleQuantityBlur = (id: string, value: string) => {
         let validatedQuantity = 1;
-
         if (value !== '') {
             const numValue = parseInt(value, 10);
             if (!isNaN(numValue) && numValue > 0) {
                 validatedQuantity = numValue;
             }
         }
-
-        setUpdatingItemId(id);
-
-        // Cập nhật giá trị đã xác thực và gọi API
         dispatch({ type: actions.UPDATE_QUANTITY, payload: { id, quantity: validatedQuantity } });
-
-        // Đồng bộ lại input value với state
-        setInputValues({...inputValues, [id]: validatedQuantity.toString()});
-
-        // updateCartOnServer().then(() => setUpdatingItemId(null));
+        setInputValues({ ...inputValues, [id]: validatedQuantity.toString() });
     };
 
     const handlePromoSubmit = async () => {
@@ -205,7 +210,7 @@ const CartPage: React.FC = () => {
                     payload: { discount: response.data.data.discountAmount, promoCode },
                 });
                 setCouponError(null);
-                toast.success(`Mã giảm giá "${promoCode}" đã được áp dụng! Giảm: $${response.data.data.discountAmount.toFixed(2)}`);
+                toast.success(`Mã giảm giá "${promoCode}" đã được áp dụng! Giảm: ${formatPrice(response.data.data.discountAmount)}`);
                 setPromoCode('');
             } else {
                 setCouponError(response.data.message || 'Mã giảm giá không hợp lệ.');
@@ -246,10 +251,7 @@ const CartPage: React.FC = () => {
     };
 
     const handleUpdateCart = () => {
-        setIsLoading(true);
-        updateCartOnServer().then(() => {
-            toast.success('Giỏ hàng đã được cập nhật!');
-        });
+        updateCartOnServer();
     };
 
     const subtotal = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -260,7 +262,6 @@ const CartPage: React.FC = () => {
         return <div>Bạn không có quyền truy cập trang này.</div>;
     }
 
-    // Thành phần hiển thị loading
     const LoadingSpinner = () => (
         <div className="loading-spinner">
             <div className="spinner"></div>
@@ -279,70 +280,59 @@ const CartPage: React.FC = () => {
                         <table className="cart-table">
                             <thead>
                             <tr>
-                                <th>Món</th>
-                                <th>Tên</th>
-                                <th>Giá</th>
-                                <th>Số lượng</th>
-                                <th>Tổng</th>
-                                <th>Xoá</th>
+                                <th className="col-image">Món</th>
+                                <th className="col-name">Tên</th>
+                                <th className="col-price">Giá</th>
+                                <th className="col-quantity">Số lượng</th>
+                                <th className="col-total">Tổng</th>
+                                <th className="col-remove">Xoá</th>
                             </tr>
                             </thead>
                             <tbody>
                             {state.cart.map((item: ContextCartItem) => (
-                                <tr key={item.id} className={updatingItemId === item.id ? 'updating-row' : ''}>
-                                    <td>
+                                <tr key={item.id}>
+                                    <td className="col-image">
                                         <img
                                             src={`${item.imageURL}`}
                                             alt={item.name}
                                             className="cart-item-image"
                                         />
                                     </td>
-                                    <td>{item.name}</td>
-                                    <td>${item.price.toFixed(2)}</td>
-                                    <td>
+                                    <td className="col-name">{item.name}</td>
+                                    <td className="col-price">{formatPrice(item.price)}</td>
+                                    <td className="col-quantity">
                                         <div className="quantity-control">
                                             <input
                                                 type="text"
                                                 pattern="[0-9]*"
                                                 value={inputValues[item.id] !== undefined ? inputValues[item.id] : item.quantity}
-                                                onChange={(e) => handleQuantityInputChange(item.id, e.target.value)}
-                                                onBlur={(e) => handleQuantityBlur(item.id, e.target.value)}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleQuantityInputChange(item.id, e.target.value)}
+                                                onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleQuantityBlur(item.id, e.target.value)}
                                                 className="quantity-input"
                                                 min="1"
                                             />
                                             <div className="quantity-buttons">
                                                 <button
-                                                    onClick={() => {
-                                                        setUpdatingItemId(item.id);
-                                                        updateQuantityLocally(item.id, item.quantity + 1);
-                                                    }}
+                                                    onClick={() => updateQuantityLocally(item.id, item.quantity + 1)}
                                                     className="quantity-button quantity-increase"
                                                     disabled={isLoading}
                                                 >
                                                     +
                                                 </button>
                                                 <button
-                                                    onClick={() => {
-                                                        setUpdatingItemId(item.id);
-                                                        updateQuantityLocally(item.id, item.quantity - 1);
-                                                    }}
-                                                    disabled={item.quantity <= 1 || isLoading}
+                                                    onClick={() => updateQuantityLocally(item.id, item.quantity - 1)}
+                                                    disabled={isLoading}
                                                     className="quantity-button quantity-decrease"
                                                 >
                                                     −
                                                 </button>
                                             </div>
-                                            {updatingItemId === item.id && (
-                                                <div className="item-loading-indicator">
-                                                    <div className="item-spinner"></div>
-                                                </div>
-                                            )}
                                         </div>
                                     </td>
-                                    <td>${(item.price * item.quantity).toFixed(2)}</td>
-                                    <td>
+                                    <td className="col-total">{formatPrice(item.price * item.quantity)}</td>
+                                    <td className="col-remove">
                                         <button
-                                            onClick={() => removeFromCartLocally(item.id)}
+                                            onClick={() => removeFromCart(item.id)}
                                             className="remove-button"
                                             disabled={isLoading}
                                         >
@@ -367,8 +357,8 @@ const CartPage: React.FC = () => {
                             <div>
                                 {isCartModified && !isLoading && (
                                     <span className="cart-modified-warning">
-                                     Chưa lưu giỏ hàng
-                                </span>
+                                        Chưa lưu giỏ hàng
+                                    </span>
                                 )}
                             </div>
                         </div>
@@ -378,21 +368,21 @@ const CartPage: React.FC = () => {
                             <h3 className="summary-title">Tổng giỏ hàng</h3>
                             <div className="summary-row">
                                 <span>Tổng giá món</span>
-                                <span>${subtotal.toFixed(2)}</span>
+                                <span>{formatPrice(subtotal)}</span>
                             </div>
                             <div className="summary-row">
                                 <span>Phí giao hàng</span>
-                                <span>${deliveryFee.toFixed(2)}</span>
+                                <span>{formatPrice(deliveryFee)}</span>
                             </div>
                             {state.discount > 0 && (
                                 <div className="summary-row">
                                     <span>Giảm giá ({state.appliedPromoCode})</span>
-                                    <span>-${state.discount.toFixed(2)}</span>
+                                    <span>-{formatPrice(state.discount)}</span>
                                 </div>
                             )}
                             <div className="summary-row total">
                                 <span>Tổng</span>
-                                <span>${total.toFixed(2)}</span>
+                                <span>{formatPrice(total)}</span>
                             </div>
                             <button
                                 onClick={handleCheckout}

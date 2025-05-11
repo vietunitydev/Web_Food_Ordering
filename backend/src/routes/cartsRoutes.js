@@ -1,4 +1,3 @@
-// src/routes/cartsRoutes.js
 const express = require('express');
 const router = express.Router();
 const CartsRoutes = require('../models/Cart');
@@ -73,6 +72,33 @@ router.put('/update', protect, async (req, res) => {
         }
 
         cart.list[itemIndex].quantity = quantity;
+        const updatedCart = await cart.save();
+        res.status(200).json(updatedCart);
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi cập nhật giỏ hàng', error });
+    }
+});
+
+// Cập nhật toàn bộ giỏ hàng
+router.put('/update-all', protect, async (req, res) => {
+    const { items } = req.body;
+
+    if (!items || !Array.isArray(items) || items.some(item => !item.foodItemId || !item.quantity || item.quantity < 1)) {
+        return res.status(400).json({ message: 'Dữ liệu giỏ hàng không hợp lệ' });
+    }
+
+    try {
+        const cart = await CartsRoutes.findOne({ userId: req.user._id });
+        if (!cart) {
+            return res.status(404).json({ message: 'Giỏ hàng không tồn tại' });
+        }
+
+        // Cập nhật danh sách items
+        cart.list = items.map(item => ({
+            foodItemId: item.foodItemId,
+            quantity: item.quantity
+        }));
+
         const updatedCart = await cart.save();
         res.status(200).json(updatedCart);
     } catch (error) {
