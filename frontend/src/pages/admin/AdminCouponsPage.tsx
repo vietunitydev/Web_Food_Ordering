@@ -202,7 +202,7 @@ const AdminCouponsPage: React.FC = () => {
     return (
         <AdminLayout activePage="coupons">
             <div className="admin-coupons-page">
-                <h2>Coupons Management</h2>
+                <h2>Coupons</h2>
 
                 {!showCreateForm && (
                     <div className="create-btn-container">

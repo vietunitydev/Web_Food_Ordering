@@ -179,7 +179,7 @@ const ListItemsPage: React.FC = () => {
     return (
         <AdminLayout activePage="list-items">
             <div className="list-items-page">
-                <h2>Danh sách món ăn</h2>
+                <h2>Foods</h2>
 
                 {/* Search Form */}
                 <div className="search-form">
@@ -239,12 +239,12 @@ const ListItemsPage: React.FC = () => {
                         <table className="items-table">
                             <thead>
                             <tr>
-                                <th>Ảnh</th>
-                                <th>Tên</th>
-                                <th>Mô tả</th>
-                                <th>Danh mục</th>
-                                <th>Giá</th>
-                                <th>Hành động</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Foods</th>
+                                <th>Price</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
                             <tbody>

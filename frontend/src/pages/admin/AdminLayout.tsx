@@ -46,7 +46,7 @@ const AdminLayout: React.FC<{ children: React.ReactNode; activePage: string }> =
                         onClick={() => navigate('/admin/list-items')}
                     >
                         <img src={item_lists} alt="List Items" />
-                        <p>List items</p>
+                        <p>Foods</p>
                     </button>
                     <button
                         className={`sidebar-btn ${activePage === 'orders' ? 'active' : ''}`}

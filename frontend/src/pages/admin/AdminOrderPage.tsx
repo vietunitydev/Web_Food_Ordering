@@ -136,7 +136,7 @@ const AdminOrdersPage: React.FC = () => {
     return (
         <AdminLayout activePage="orders">
             <div className="admin-orders-page">
-                <h2>Order Page</h2>
+                <h2>Orders</h2>
 
                 <div className="search-form">
                     <input

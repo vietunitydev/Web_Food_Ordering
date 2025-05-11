@@ -129,7 +129,7 @@ const AdminUsersPage: React.FC = () => {
     return (
         <AdminLayout activePage="users">
             <div className="admin-users-page">
-                <h2>Users Management</h2>
+                <h2>Users</h2>
 
                 <div className="search-form">
                     <input
