@@ -155,7 +155,7 @@ const AdminOrdersPage: React.FC = () => {
                     />
                     <input
                         type="number"
-                        placeholder="Tìm tổng"
+                        placeholder="Tìm giá"
                         value={searchTerms.payment}
                         onChange={(e) => handleSearchChange('payment', e.target.value)}
                         className="search-input"
@@ -236,7 +236,7 @@ const AdminOrdersPage: React.FC = () => {
                                         </td>
                                         <td>
                                             <button onClick={() => toggleOrderDetails(order._id)} className="details-btn">
-                                                {expandedOrderId === order._id ? 'Ẩn chi tiết' : 'View detail'}
+                                                {expandedOrderId === order._id ? 'Ẩn chi tiết' : 'Xem chi tiết'}
                                             </button>
                                         </td>
                                     </tr>
