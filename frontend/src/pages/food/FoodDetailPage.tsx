@@ -28,7 +28,7 @@ const FoodDetailPage: React.FC = () => {
     useEffect(() => {
         const fetchFoodItem = async () => {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/foodItems/${id}`);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/foodItems/get/${id}`);
                 setFoodItem(response.data);
             } catch (err) {
                 console.error('Lỗi khi lấy thông tin món ăn:', err);
