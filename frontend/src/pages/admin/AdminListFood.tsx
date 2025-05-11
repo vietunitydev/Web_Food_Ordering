@@ -3,7 +3,7 @@ import AdminLayout from './AdminLayout';
 import axios from 'axios';
 import './AdminListFood.css';
 import { useAppContext } from '../../components/AppContext/AppContext.tsx';
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 
 interface Item {
     _id: string;
@@ -42,10 +42,14 @@ const ListItemsPage: React.FC = () => {
     });
     const [editItemId, setEditItemId] = useState<string | null>(null);
     const [editData, setEditData] = useState<Partial<Item>>({});
+    const [newImage, setNewImage] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false); // Thêm trạng thái loading
 
     useEffect(() => {
         const fetchItems = async () => {
             if (state.role !== 'admin') return;
+            setIsLoading(true);
             try {
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/foodItems/get_food_admin`, {
                     headers: { Authorization: `Bearer ${state.token}` },
@@ -64,6 +68,9 @@ const ListItemsPage: React.FC = () => {
                 setPagination(response.data.pagination);
             } catch (error) {
                 console.error('Lỗi khi lấy danh sách sản phẩm:', error);
+                toast.error('Lỗi khi lấy danh sách sản phẩm!');
+            } finally {
+                setIsLoading(false);
             }
         };
         if (state.token && state.role === 'admin') fetchItems();
@@ -71,6 +78,7 @@ const ListItemsPage: React.FC = () => {
 
     const handleDelete = async (id: string) => {
         if (window.confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+            setIsLoading(true);
             try {
                 await axios.delete(`${import.meta.env.VITE_API_URL}/api/foodItems/${id}`, {
                     headers: { Authorization: `Bearer ${state.token}` },
@@ -80,6 +88,8 @@ const ListItemsPage: React.FC = () => {
             } catch (error) {
                 console.error('Lỗi khi xóa sản phẩm:', error);
                 toast.error('Lỗi khi xóa sản phẩm!');
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -87,6 +97,15 @@ const ListItemsPage: React.FC = () => {
     const handleEdit = (item: Item) => {
         setEditItemId(item._id);
         setEditData({ ...item });
+        setNewImage(null);
+        setImagePreview(null);
+    };
+
+    const handleCancel = () => {
+        setEditItemId(null);
+        setEditData({});
+        setNewImage(null);
+        setImagePreview(null);
     };
 
     const handleEditChange = (field: string, value: string | number) => {
@@ -99,21 +118,44 @@ const ListItemsPage: React.FC = () => {
         }
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setNewImage(file);
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
+        }
+    };
+
     const handleSave = async (id: string) => {
+        setIsLoading(true);
         try {
+            const formData = new FormData();
+            formData.append('title', editData.title || '');
+            formData.append('description', editData.description || '');
+            formData.append('type', editData.type || '');
+            formData.append('price', editData.price?.toString() || '0');
+            if (newImage) {
+                formData.append('image', newImage);
+            }
+
             const response = await axios.put(
                 `${import.meta.env.VITE_API_URL}/api/foodItems/${id}`,
-                editData,
+                formData,
                 { headers: { Authorization: `Bearer ${state.token}` } }
             );
             setItems((prevItems) =>
                 prevItems.map((item) => (item._id === id ? response.data : item))
             );
             setEditItemId(null);
+            setNewImage(null);
+            setImagePreview(null);
             toast.success('Sản phẩm đã được cập nhật!');
         } catch (error) {
-            console.error('Error updating food item:', error);
+            console.error('Lỗi khi cập nhật sản phẩm:', error);
             toast.error('Lỗi khi cập nhật sản phẩm!');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -125,7 +167,6 @@ const ListItemsPage: React.FC = () => {
         } else {
             setSearchTerms((prev) => ({ ...prev, [field]: value }));
         }
-        // Reset to page 1 when search terms change
         setPagination((prev) => ({ ...prev, currentPage: 1 }));
     };
 
@@ -138,7 +179,7 @@ const ListItemsPage: React.FC = () => {
     return (
         <AdminLayout activePage="list-items">
             <div className="list-items-page">
-                <h2>All Food List</h2>
+                <h2>Danh sách món ăn</h2>
 
                 {/* Search Form */}
                 <div className="search-form">
@@ -148,6 +189,7 @@ const ListItemsPage: React.FC = () => {
                         value={searchTerms.title}
                         onChange={(e) => handleSearchChange('title', e.target.value)}
                         className="search-input"
+                        disabled={isLoading}
                     />
                     <input
                         type="text"
@@ -155,6 +197,7 @@ const ListItemsPage: React.FC = () => {
                         value={searchTerms.description}
                         onChange={(e) => handleSearchChange('description', e.target.value)}
                         className="search-input"
+                        disabled={isLoading}
                     />
                     <input
                         type="number"
@@ -163,6 +206,7 @@ const ListItemsPage: React.FC = () => {
                         onChange={(e) => handleSearchChange('priceFrom', e.target.value)}
                         className="search-input"
                         min="0"
+                        disabled={isLoading}
                     />
                     <input
                         type="number"
@@ -171,17 +215,19 @@ const ListItemsPage: React.FC = () => {
                         onChange={(e) => handleSearchChange('priceTo', e.target.value)}
                         className="search-input"
                         min="0"
+                        disabled={isLoading}
                     />
                     <select
                         value={searchTerms.type}
                         onChange={(e) => handleSearchChange('type', e.target.value)}
                         className="search-input"
+                        disabled={isLoading}
                     >
                         <option value="">Tất cả danh mục</option>
                         <option value="main">Món chính</option>
                         <option value="dessert">Tráng miệng</option>
-                        <option value="fast-food">Đồ ăn nhanh</option>
-                        <option value="drink">Đồ uống</option>
+                        <option value="fast_food">Đồ ăn nhanh</option>
+                        <option value="drinks">Đồ uống</option>
                         <option value="other">Khác</option>
                     </select>
                 </div>
@@ -193,26 +239,44 @@ const ListItemsPage: React.FC = () => {
                         <table className="items-table">
                             <thead>
                             <tr>
-                                <th>Image</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Action</th>
+                                <th>Ảnh</th>
+                                <th>Tên</th>
+                                <th>Mô tả</th>
+                                <th>Danh mục</th>
+                                <th>Giá</th>
+                                <th>Hành động</th>
                             </tr>
                             </thead>
                             <tbody>
                             {items.map((item) => (
                                 <tr key={item._id}>
                                     <td>
-                                        {item.imageURL ? (
+                                        {editItemId === item._id ? (
+                                            <div className="image-upload">
+                                                <input
+                                                    type="file"
+                                                    id={`image-${item._id}`}
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                    style={{ display: 'none' }}
+                                                    disabled={isLoading}
+                                                />
+                                                <label htmlFor={`image-${item._id}`}>
+                                                    <img
+                                                        src={imagePreview || item.imageURL || 'placeholder-image-url'}
+                                                        alt={item.title}
+                                                        className="item-image"
+                                                    />
+                                                </label>
+                                            </div>
+                                        ) : item.imageURL ? (
                                             <img
                                                 src={`${item.imageURL}`}
                                                 alt={item.title}
                                                 className="item-image"
                                             />
                                         ) : (
-                                            'No Image'
+                                            'Không có ảnh'
                                         )}
                                     </td>
                                     <td className="fixed-width">
@@ -223,6 +287,7 @@ const ListItemsPage: React.FC = () => {
                                                 onChange={(e) =>
                                                     handleEditChange('title', e.target.value)
                                                 }
+                                                disabled={isLoading}
                                             />
                                         ) : (
                                             <span className="text-ellipsis">{item.title}</span>
@@ -236,6 +301,7 @@ const ListItemsPage: React.FC = () => {
                                                 onChange={(e) =>
                                                     handleEditChange('description', e.target.value)
                                                 }
+                                                disabled={isLoading}
                                             />
                                         ) : (
                                             <span className="text-ellipsis">{item.description}</span>
@@ -243,13 +309,19 @@ const ListItemsPage: React.FC = () => {
                                     </td>
                                     <td className="fixed-width">
                                         {editItemId === item._id ? (
-                                            <input
-                                                type="text"
+                                            <select
                                                 value={editData.type || ''}
                                                 onChange={(e) =>
                                                     handleEditChange('type', e.target.value)
                                                 }
-                                            />
+                                                disabled={isLoading}
+                                            >
+                                                <option value="main">Món chính</option>
+                                                <option value="dessert">Tráng miệng</option>
+                                                <option value="fast_food">Đồ ăn nhanh</option>
+                                                <option value="drinks">Đồ uống</option>
+                                                <option value="other">Khác</option>
+                                            </select>
                                         ) : (
                                             <span className="text-ellipsis">{item.type}</span>
                                         )}
@@ -263,6 +335,7 @@ const ListItemsPage: React.FC = () => {
                                                     handleEditChange('price', e.target.value)
                                                 }
                                                 min="0"
+                                                disabled={isLoading}
                                             />
                                         ) : (
                                             `$${item.price.toFixed(2)}`
@@ -273,15 +346,17 @@ const ListItemsPage: React.FC = () => {
                                             <div className="actions">
                                                 <button
                                                     onClick={() => handleSave(item._id)}
-                                                    className="save-btn"
+                                                    className="save-btnn"
+                                                    disabled={isLoading}
                                                 >
-                                                    Save
+                                                    {isLoading ? 'Đang xử lý...' : 'Lưu'}
                                                 </button>
                                                 <button
-                                                    className="delete-btn"
-                                                    onClick={() => handleDelete(item._id)}
+                                                    onClick={handleCancel}
+                                                    className="cancel-btnn"
+                                                    disabled={isLoading}
                                                 >
-                                                    Delete
+                                                    {isLoading ? 'Đang xử lý...' : 'Hủy'}
                                                 </button>
                                             </div>
                                         ) : (
@@ -289,14 +364,16 @@ const ListItemsPage: React.FC = () => {
                                                 <button
                                                     onClick={() => handleEdit(item)}
                                                     className="update-btn"
+                                                    disabled={isLoading}
                                                 >
-                                                    Update
+                                                    {isLoading ? 'Đang xử lý...' : 'Sửa'}
                                                 </button>
                                                 <button
                                                     className="delete-btn"
                                                     onClick={() => handleDelete(item._id)}
+                                                    disabled={isLoading}
                                                 >
-                                                    Delete
+                                                    {isLoading ? 'Đang xử lý...' : 'Xóa'}
                                                 </button>
                                             </div>
                                         )}
@@ -310,18 +387,18 @@ const ListItemsPage: React.FC = () => {
                         <div className="pagination-controls">
                             <button
                                 onClick={() => handlePageChange(pagination.currentPage - 1)}
-                                disabled={pagination.currentPage === 1}
+                                disabled={pagination.currentPage === 1 || isLoading}
                             >
-                                Previous
+                                Trang trước
                             </button>
                             <span>
-                                Page {pagination.currentPage} of {pagination.totalPages}
+                                Trang {pagination.currentPage} / {pagination.totalPages}
                             </span>
                             <button
                                 onClick={() => handlePageChange(pagination.currentPage + 1)}
-                                disabled={!pagination.hasMore}
+                                disabled={!pagination.hasMore || isLoading}
                             >
-                                Next
+                                Trang sau
                             </button>
                         </div>
                     </>

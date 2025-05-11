@@ -35,6 +35,11 @@
     border-color: #007bff;
 }
 
+.search-input:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+}
+
 .no-items {
     font-size: 16px;
     color: #666;
@@ -71,7 +76,6 @@
     vertical-align: middle;
 }
 
-/* Adjusted fixed widths for table cells */
 .fixed-width {
     max-width: 100px;
     word-wrap: break-word;
@@ -105,51 +109,68 @@
 
 /* Button Styling with Explicit Width Control */
 .update-btn,
-.save-btn,
-.delete-btn {
-    background-color: #007bff;
-    color: white;
+.save-btnn,
+.delete-btn,
+.cancel-btnn {
     border: none;
     padding: 6px 12px;
     border-radius: 4px;
     font-size: 14px;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 80px; /* Explicit width to prevent stretching */
+    width: 80px;
     text-align: center;
-    display: inline-block; /* Ensure buttons stay inline */
+    display: inline-block;
     margin-right: 5px;
     box-sizing: border-box;
 }
 
-.save-btn {
-    background-color: #007bff; /* Ensure Save matches Update */
+.update-btn {
+    background-color: #007bff;
+    color: white;
 }
 
-.update-btn:hover,
-.save-btn:hover {
-    background-color: #0056b3;
+.save-btnn {
+    background-color: #28a745;
+    color: white;
+}
+
+.cancel-btnn {
+    background-color: #6c757d;
+    color: white;
 }
 
 .delete-btn {
     background-color: #e74c3c;
-    width: 80px; /* Match other buttons */
+    color: white;
 }
 
+.update-btn:hover,
+.save-btnn:hover,
+.cancel-btnn:hover,
 .delete-btn:hover {
-    background-color: #c0392b;
+    opacity: 0.85;
+}
+
+.update-btn:disabled,
+.save-btnn:disabled,
+.cancel-btnn:disabled,
+.delete-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
 }
 
 /* Ensure button container handles multiple buttons */
 .items-table td.actions {
-    white-space: nowrap; /* Prevent wrapping of buttons */
+    white-space: nowrap;
     display: flex;
-    gap: 5px; /* Space between buttons */
+    gap: 5px;
 }
 
 /* Input Styling for Editing */
 .items-table input[type="text"],
-.items-table input[type="number"] {
+.items-table input[type="number"],
+.items-table select {
     width: 100%;
     padding: 6px;
     border: 1px solid #ddd;
@@ -166,6 +187,12 @@
 .items-table input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.items-table input:disabled,
+.items-table select:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
 }
 
 .pagination-controls {
@@ -235,11 +262,12 @@
     }
 
     .update-btn,
-    .save-btn,
+    .save-btnn,
+    .cancel-btnn,
     .delete-btn {
         font-size: 12px;
         padding: 4px 8px;
-        width: 60px; /* Adjust width on mobile */
+        width: 60px;
     }
 
     .items-table td.actions {

@@ -1,19 +1,19 @@
 const FoodItem = require('../models/FoodItem');
 const cloudinary = require('cloudinary').v2;
 
+// Middleware: Validate food info before upload
 exports.validateFoodInfoBeforeUpload = async (req, res, next) => {
     const { title, description, price, type } = req.body;
     if (!title || !description || !price || !type || !req.file) {
         console.log(title, description, price, type, req.file);
         return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
     }
-
     next();
-}
+};
 
+// Create a new food item
 exports.createFoodItem = async (req, res) => {
     try {
-        console.log("create");
         const { title, description, price, type } = req.body;
 
         if (!title || !description || !price || !type || !req.file) {
@@ -36,14 +36,17 @@ exports.createFoodItem = async (req, res) => {
     } catch (error) {
         console.error('Lỗi MongoDB:', error);
 
-        // delete image in cloudinary
-        const publicId = imageURL.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(`food-app/${publicId}`);
+        // Delete image in Cloudinary if creation fails
+        if (req.file) {
+            const publicId = req.file.path.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`food-app/${publicId}`);
+        }
 
         res.status(500).json({ message: 'Lỗi khi thêm sản phẩm', error });
     }
 };
 
+// Get food items with pagination and filtering
 exports.getFoodItems = async (req, res) => {
     try {
         const { page = 1, limit = 20, category, search, featured, sort, order } = req.query;
@@ -82,7 +85,7 @@ exports.getFoodItems = async (req, res) => {
                 totalPages,
                 totalItems,
                 itemsPerPage: parseInt(limit),
-                hasMore: parseInt(page) < totalPages
+                hasMore: parseInt(page) < totalPages,
             },
         });
     } catch (error) {
@@ -91,6 +94,7 @@ exports.getFoodItems = async (req, res) => {
     }
 };
 
+// Get food items for homepage
 exports.getFoodItemsHome = async (req, res) => {
     try {
         const { featured, sort, order, limit } = req.query;
@@ -117,6 +121,7 @@ exports.getFoodItemsHome = async (req, res) => {
     }
 };
 
+// Get food items for admin
 exports.getFoodItemsForAdmin = async (req, res) => {
     try {
         const {
@@ -130,7 +135,6 @@ exports.getFoodItemsForAdmin = async (req, res) => {
             priceTo,
         } = req.query;
 
-        // Build query object for filtering
         let query = {};
 
         if (id) {
@@ -155,17 +159,14 @@ exports.getFoodItemsForAdmin = async (req, res) => {
             if (priceTo) query.price.$lte = parseFloat(priceTo);
         }
 
-        // Pagination options
         const options = {
             skip: (parseInt(page) - 1) * parseInt(limit),
             limit: parseInt(limit),
         };
 
-        // Fetch total items for pagination
         const totalItems = await FoodItem.countDocuments(query);
         const totalPages = Math.ceil(totalItems / parseInt(limit));
 
-        // Fetch food items
         const foodItems = await FoodItem.find(query, null, options);
 
         res.status(200).json({
@@ -184,63 +185,79 @@ exports.getFoodItemsForAdmin = async (req, res) => {
     }
 };
 
+// Get all food items
 exports.getAllFoodItems = async (req, res) => {
     try {
         const { limit } = req.query;
-
+        let query = {};
+        let options = {};
 
         if (limit) {
             options.limit = parseInt(limit);
         }
-        let query = {};
-        const foodItems = await FoodItem.find(options);
+
+        const foodItems = await FoodItem.find(query, null, options);
         const totalItems = await FoodItem.countDocuments();
 
         res.status(200).json({
             foodItem: foodItems,
-            total : totalItems
+            total: totalItems,
         });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi lấy danh sách sản phẩm', error });
     }
 };
 
-
+// Update food item
 exports.updateFoodItem = async (req, res) => {
     try {
         const { title, description, price, type } = req.body;
-        const updateData = { title, description, price: parseFloat(price), type };
+        const item = await FoodItem.findById(req.params.id);
 
-        if (req.file) {
-            updateData.imageURL = req.file.path;
-        }
-
-        const updatedItem = await FoodItem.findByIdAndUpdate(req.params.id, updateData, { new: true });
-        if (!updatedItem) {
+        if (!item) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
         }
+
+        // If a new image is uploaded, delete the old one from Cloudinary
+        if (req.file && item.imageURL) {
+            const oldPublicId = item.imageURL.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`food-app/${oldPublicId}`);
+        }
+
+        const updateData = {
+            title,
+            description,
+            price: parseFloat(price),
+            type,
+            imageURL: req.file ? req.file.path : item.imageURL, // Use new image if provided, otherwise keep the old one
+        };
+
+        const updatedItem = await FoodItem.findByIdAndUpdate(req.params.id, updateData, { new: true });
         res.status(200).json(updatedItem);
     } catch (error) {
+        // If there's an error and a new image was uploaded, delete it
+        if (req.file) {
+            const publicId = req.file.path.split('/').pop().split('.')[0];
+            await cloudinary.uploader.destroy(`food-app/${publicId}`);
+        }
         res.status(500).json({ message: 'Lỗi khi sửa sản phẩm', error });
     }
 };
 
-// Xóa ảnh trên Cloudinary khi xóa sản phẩm
+// Delete food item
 exports.deleteFoodItem = async (req, res) => {
     try {
-        // console.log("delete")
         const item = await FoodItem.findById(req.params.id);
         if (!item) {
             return res.status(404).json({ message: 'Sản phẩm không tồn tại' });
         }
-        // console.log("has item")
+
         if (item.imageURL) {
             const publicId = item.imageURL.split('/').pop().split('.')[0];
-            // console.log("id " + publicId)
             await cloudinary.uploader.destroy(`food-app/${publicId}`);
         }
 
-        const deletedItem = await FoodItem.findByIdAndDelete(req.params.id);
+        await FoodItem.findByIdAndDelete(req.params.id);
         res.status(200).json({ message: 'Sản phẩm đã được xóa' });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi xóa sản phẩm', error });
