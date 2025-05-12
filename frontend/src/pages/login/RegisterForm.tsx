@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './RegisterForm.css';
+import { actions, useAppContext } from "../../components/AppContext/AppContext.tsx";
 
 const RegisterForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -14,6 +15,7 @@ const RegisterForm: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { dispatch } = useAppContext();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,9 +45,17 @@ const RegisterForm: React.FC = () => {
       });
 
       if (response.data.success) {
-        // Store token and user info in local storage
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('user', JSON.stringify(response.data.user));
+        // Lấy token từ response
+        const token = response.data.token;
+
+        // Lấy thông tin user và role từ API
+        const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const role = userResponse.data.data.role;
+
+        // Cập nhật context thông qua dispatch (giống như trong LoginForm)
+        dispatch({ type: actions.LOGIN, payload: { token, role } });
 
         // Redirect to home page after successful registration
         navigate('/home');
@@ -140,4 +150,4 @@ const RegisterForm: React.FC = () => {
   );
 };
 
-export default RegisterForm;
+export default RegisterForm
