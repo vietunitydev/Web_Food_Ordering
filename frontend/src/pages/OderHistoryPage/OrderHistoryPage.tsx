@@ -55,7 +55,13 @@ const OrderHistoryPage: React.FC = () => {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
+                console.log(response.data.orders);
+
                 const fetchedOrders: Order[] = response.data.orders;
+
+                console.log(fetchedOrders);
+
+
                 setOrders(fetchedOrders);
             } catch (err) {
                 if (axios.isAxiosError(err)) {

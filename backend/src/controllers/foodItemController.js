@@ -1,16 +1,6 @@
 const FoodItem = require('../models/FoodItem');
 const cloudinary = require('cloudinary').v2;
 
-// Middleware: Validate food info before upload
-exports.validateFoodInfoBeforeUpload = async (req, res, next) => {
-    const { title, description, price, type } = req.body;
-    if (!title || !description || !price || !type || !req.file) {
-        console.log(title, description, price, type, req.file);
-        return res.status(400).json({ message: 'Vui lòng nhập đầy đủ thông tin sản phẩm.' });
-    }
-    next();
-};
-
 // Create a new food item
 exports.createFoodItem = async (req, res) => {
     try {

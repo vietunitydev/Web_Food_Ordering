@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import './CheckoutPage.css';
@@ -21,6 +21,7 @@ const CheckoutPage: React.FC = () => {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const navigate = useNavigate();
     const location = useLocation();
+    const processedSessionIds = useRef(new Set<string>());
 
     useEffect(() => {
         const fetchCart = async () => {
@@ -66,39 +67,52 @@ const CheckoutPage: React.FC = () => {
             }
         };
 
-        const checkPaymentStatus = async () => {
-            const params = new URLSearchParams(location.search);
-            const sessionId = params.get('session_id');
-            if (sessionId) {
-                setIsLoading(true);
-                try {
-                    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/verify-session/${sessionId}`, {
-                        headers: { Authorization: `Bearer ${state.token}` },
-                    });
-                    if (response.data.success) {
-                        dispatch({ type: actions.CLEAR_CART });
-                        dispatch({ type: actions.CLEAR_DISCOUNT });
-                        toast.success('Đặt hàng thành công! Bạn có thể xem lịch sử đơn hàng ở trang "Lịch sử đặt hàng".');
-                        navigate('/order-history', { replace: true });
-                    } else {
-                        setErrorMessage('Thanh toán không thành công. Vui lòng thử lại.');
-                        navigate('/checkout', { replace: true });
-                    }
-                } catch (error: any) {
-                    console.error('Lỗi khi xác minh thanh toán:', error);
-                    setErrorMessage(error.response?.data?.message || 'Lỗi khi xác minh thanh toán.');
+        if (state.token && state.role === 'user') {
+            fetchCart();
+        }
+    }, [state.token, state.role, state.isLoading, navigate]);
+
+    // useEffect riêng biệt cho việc kiểm tra thanh toán
+    useEffect(() => {
+        const checkPaymentStatus = async (sessionId: string) => {
+            // Nếu sessionId này đã được xử lý rồi thì bỏ qua
+            if (processedSessionIds.current.has(sessionId)) {
+                return;
+            }
+
+            // Đánh dấu sessionId này đã được xử lý
+            processedSessionIds.current.add(sessionId);
+
+            setIsLoading(true);
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders/verify-session/${sessionId}`, {
+                    headers: { Authorization: `Bearer ${state.token}` },
+                });
+                if (response.data.success) {
+                    dispatch({ type: actions.CLEAR_CART });
+                    dispatch({ type: actions.CLEAR_DISCOUNT });
+                    toast.success('Đặt hàng thành công! Bạn có thể xem lịch sử đơn hàng ở trang "Lịch sử đặt hàng".');
+                    navigate('/order-history', { replace: true });
+                } else {
+                    setErrorMessage('Thanh toán không thành công. Vui lòng thử lại.');
                     navigate('/checkout', { replace: true });
-                } finally {
-                    setIsLoading(false);
                 }
+            } catch (error: any) {
+                console.error('Lỗi khi xác minh thanh toán:', error);
+                setErrorMessage(error.response?.data?.message || 'Lỗi khi xác minh thanh toán.');
+                navigate('/checkout', { replace: true });
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        if (state.token && state.role === 'user') {
-            fetchCart();
-            checkPaymentStatus();
+        const params = new URLSearchParams(location.search);
+        const sessionId = params.get('session_id');
+
+        if (sessionId && state.token && state.role === 'user') {
+            checkPaymentStatus(sessionId);
         }
-    }, [navigate, state.token, state.role, location.search]);
+    }, [location.search, state.token, state.role, navigate, dispatch]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -114,7 +128,7 @@ const CheckoutPage: React.FC = () => {
             return;
         }
 
-        const emailRegex = /^[^\s@]+@[^\s@]+.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const phoneRegex = /^\d{10,11}$/;
 
         if (!emailRegex.test(formData.email)) {
