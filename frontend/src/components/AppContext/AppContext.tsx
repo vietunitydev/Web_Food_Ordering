@@ -1,5 +1,6 @@
 import React, { createContext, useReducer, useEffect, useContext } from 'react';
 import { ContextCartItem } from '../../shared/types';
+import axios from 'axios';
 
 interface AppState {
     cart: ContextCartItem[];
@@ -103,6 +104,27 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         };
     });
 
+    // Hàm để fetch giỏ hàng từ server
+    const fetchCart = async (token: string) => {
+        try {
+            const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/carts/my-cart`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const cartItems = response.data.list.map((item: any) => ({
+                id: item.foodItemId._id,
+                name: item.foodItemId.title,
+                price: Number(item.foodItemId.price) || 0,
+                quantity: item.quantity,
+                imageURL: item.foodItemId.imageURL,
+            }));
+
+            dispatch({ type: actionTypes.SET_CART, payload: cartItems });
+        } catch (error) {
+            console.error('Lỗi khi lấy giỏ hàng:', error);
+        }
+    };
+
     useEffect(() => {
         const fetchRole = async () => {
             if (state.token) {
@@ -116,6 +138,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
                     if (response.ok) {
                         dispatch({ type: actionTypes.LOGIN, payload: { token: state.token, role: data.data.role } });
+
+                        // Nếu user là người dùng thường, fetch giỏ hàng
+                        if (data.data.role === 'user') {
+                            await fetchCart(state.token);
+                        }
                     } else {
                         console.error('Failed to fetch role:', data.message);
                         localStorage.removeItem('token');
@@ -136,6 +163,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
         localStorage.setItem('token', state.token || '');
     }, [state.token]);
+
+    // Thêm useEffect mới để fetch cart khi role thay đổi
+    useEffect(() => {
+        if (state.token && state.role === 'user' && !state.isLoading) {
+            fetchCart(state.token);
+        }
+    }, [state.role]);
 
     return (
         <AppContext.Provider value={{ state, dispatch }}>
